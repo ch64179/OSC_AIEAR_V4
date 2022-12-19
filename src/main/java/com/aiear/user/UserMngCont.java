@@ -137,18 +137,22 @@ public class UserMngCont {
 			@RequestBody UserInfoVO userInfoVO) {
 		
 		logger.info("■■■■■■ getUserCodeDupChk / userInfoVO : {}", userInfoVO.beanToHmap(userInfoVO).toString());
-		
 		ResponseVO rsltVO = new ResponseVO();
 		Map<String, Object> rslt = new HashMap<String, Object>();
-	
-		int cnt = userDAO.getUserCodeDupChk(userInfoVO);
 		
-		String msg = cnt > 0 ? "중복 코드가 존재합니다." : "사용가능합니다.";
-		
-		rslt.put("cnt", cnt);
-		rslt.put("msg", msg);
-		
-		rsltVO.setData(rslt);
+		try {
+			int cnt = userDAO.getUserCodeDupChk(userInfoVO);
+			
+			String msg = cnt > 0 ? "중복 코드가 존재합니다." : "사용가능합니다.";
+			
+			rslt.put("cnt", cnt);
+			rslt.put("msg", msg);
+			
+			rsltVO.setData(rslt);
+		} catch (Exception e) {
+			// TODO: handle exception
+			rsltVO.setStatus(400);
+		}
 		
 		return rsltVO;
 	}
@@ -194,6 +198,7 @@ public class UserMngCont {
 			// TODO Auto-generated catch block
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
+			rsltVO.setStatus(400);
 		}
 		
 		rsltVO.setData(rslt);
@@ -230,6 +235,7 @@ public class UserMngCont {
 			// TODO: handle exception
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
+			rsltVO.setStatus(400);
 		}
 		
 		rsltVO.setData(rslt);
@@ -269,6 +275,7 @@ public class UserMngCont {
 			// TODO: handle exception
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
+			rsltVO.setStatus(400);
 		}
 
 		rsltVO.setData(rslt);
@@ -309,6 +316,7 @@ public class UserMngCont {
 			// TODO: handle exception
 			rsltMap.put("msg", e.getMessage());
 			rsltMap.put("val", cnt);
+			rsltVO.setStatus(400);
 		}
 		
 		rsltVO.setData(rsltMap);

@@ -21,4 +21,5 @@ public class User {
     private String hospitalId;
     private String hospitalNm;
     private String hospitalPwd;
+    private String userType;
 }

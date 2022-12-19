@@ -51,13 +51,21 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(String hospitalId) {
+    public String generateToken(String hospitalId, String hospitalPwd, String userType) {
         Map<String, Object> claims = new HashMap<>();
+        
+        claims.put("id", hospitalId);
+        claims.put("type", userType);
+        
         return createToken(claims, hospitalId);
     }
     
-    public String generateRefreshToken(String hospitalId) {
+    public String generateRefreshToken(String hospitalId, String hospitalPwd, String userType) {
         Map<String, Object> claims = new HashMap<>();
+        
+        claims.put("id", hospitalId);
+        claims.put("type", userType);
+        
         return createRefreshToken(claims, hospitalId);
     }
 

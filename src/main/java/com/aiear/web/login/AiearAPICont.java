@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,7 +31,7 @@ public class AiearAPICont {
 	public @ResponseBody ResponseVO oscPostTest(
 			HttpServletRequest req,
 			HttpServletResponse res,
-			CommonCdVO commonVO
+			@RequestBody CommonCdVO commonVO
 		) {
 		
 		ResponseVO resVO = new ResponseVO();

@@ -21,4 +21,5 @@ public class AuthRequest {
 
     private String hospitalId;
     private String hospitalPwd;
+    private String userType;
 }

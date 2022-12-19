@@ -82,6 +82,10 @@ public class LoginCont {
 						+ "<br> 	- 필수값"
 						+ "\n 2. user_pwd"
 						+ "<br> 	- 필수값"
+						+ "<br>"
+						+ "<br>▶ 관리자 구분 : use_type 값이 'ADMIN'일 경우"
+						+ "<br>▶ 신규구분 : new_yn 값이 'Y'일 경우"
+						+ "<br>▶ 탈퇴구분 : use_yn 값이 'N'일 경우"
 				)
 	@PostMapping(value = "normalLogin.do")
 	public @ResponseBody ResponseVO normalLogin(
@@ -138,6 +142,7 @@ public class LoginCont {
 				AuthRequest authRequest = new AuthRequest();
 				authRequest.setHospitalId(loginVO.getUser_id());
 				authRequest.setHospitalPwd(loginVO.getUser_pwd());
+				authRequest.setUserType(pwdChk.get("user_type").toString());
 				authToken = generateTokenStr(authRequest);
 				refreshToken = generateRefreshTokenStr(authRequest);
 				
@@ -180,7 +185,7 @@ public class LoginCont {
         } catch (Exception ex) {
             throw new Exception("inavalid username/password");
         }
-        return jwtUtil.generateToken(authRequest.getHospitalId());
+        return jwtUtil.generateToken(authRequest.getHospitalId(), authRequest.getHospitalPwd(), authRequest.getUserType());
     }
 	
 	
@@ -200,7 +205,7 @@ public class LoginCont {
         } catch (Exception ex) {
             throw new Exception("inavalid username/password");
         }
-        return jwtUtil.generateRefreshToken(authRequest.getHospitalId());
+        return jwtUtil.generateRefreshToken(authRequest.getHospitalId(), authRequest.getHospitalPwd(), authRequest.getUserType());
     }
 	
 	
@@ -379,7 +384,7 @@ public class LoginCont {
         } catch (Exception ex) {
             throw new Exception("inavalid username/password");
         }
-        return jwtUtil.generateToken(authRequest.getHospitalId());
+        return jwtUtil.generateToken(authRequest.getHospitalId(), authRequest.getHospitalPwd(), authRequest.getUserType());
     }
 	
 	
@@ -391,7 +396,7 @@ public class LoginCont {
         } catch (Exception ex) {
             throw new Exception("inavalid username/password");
         }
-        return jwtUtil.generateRefreshToken(authRequest.getHospitalId());
+        return jwtUtil.generateRefreshToken(authRequest.getHospitalId(), authRequest.getHospitalPwd(), authRequest.getUserType());
     }
 	
 }

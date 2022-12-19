@@ -21,7 +21,7 @@
 				SELECT hospital_id AS user_id
 					 , hospital_nm AS user_nm
 					 , hospital_pwd AS user_pwd
-					 , 'HOSPITAL' AS user_type
+					 , user_type AS user_type
 				  FROM t_hospital_info) AS t1
 		 WHERE 1=1
 		   AND t1.user_id = #{user_id}
@@ -33,10 +33,14 @@
 			 , t1.user_nm
 			 , t1.user_pwd
 			 , t1.user_type
+			 , t1.use_yn
+			 , t1.new_yn
 		  FROM (SELECT user_id
 		  			 , user_nm
 					 , user_pwd
 					 , user_type
+					 , use_yn
+					 , 'N' AS new_yn
 				  FROM t_user_info
 				 WHERE 1=1
 				   AND user_type = 'ADMIN'
@@ -44,7 +48,9 @@
 				SELECT hospital_id AS user_id
 					 , hospital_nm AS user_nm
 					 , hospital_pwd AS user_pwd
-					 , 'HOSPITAL' AS user_type
+					 , user_type AS user_type
+					 , use_yn
+					 , new_yn
 				  FROM t_hospital_info) AS t1
 		 WHERE 1=1
 		   AND t1.user_id = #{user_id}
@@ -68,7 +74,7 @@
 				 UNION ALL
 				SELECT hospital_id AS user_id
 					 , hospital_pwd AS user_pwd
-					 , 'HOSPITAL' AS user_type
+					 , user_type AS user_type
 					 , mgr_tel_no AS mobile_tel_no
 				  FROM t_hospital_info) AS t1
 		 WHERE 1=1

@@ -116,6 +116,7 @@ public class HospitalMngCont {
 			// TODO: handle exception
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
+			rsltVO.setStatus(400);
 		}
 		
 		rsltVO.setData(rslt);
@@ -216,6 +217,7 @@ public class HospitalMngCont {
 			// TODO: handle exception
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
+			rsltVO.setStatus(400);
 		}
 		
 		rsltVO.setData(rslt);
@@ -268,6 +270,7 @@ public class HospitalMngCont {
 			// TODO: handle exception
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
+			rsltVO.setStatus(400);
 		}
 		
 		rsltVO.setData(rslt);
@@ -312,6 +315,7 @@ public class HospitalMngCont {
 			// TODO: handle exception
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
+			rsltVO.setStatus(400);
 		}
 		
 		rsltVO.setData(rslt);

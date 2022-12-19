@@ -39,7 +39,7 @@ public class AuthenticateUtil {
         } catch (Exception ex) {
             throw new Exception("inavalid username/password");
         }
-        return jwtUtil.generateToken(authRequest.getHospitalId());
+        return jwtUtil.generateToken(authRequest.getHospitalId(), authRequest.getHospitalPwd(), authRequest.getUserType());
     }
 	
 }
