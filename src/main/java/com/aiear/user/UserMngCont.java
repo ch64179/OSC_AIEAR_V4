@@ -17,6 +17,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,7 +32,6 @@ import com.aiear.dao.CommonDAO;
 import com.aiear.dao.UserMngDAO;
 import com.aiear.vo.ResponseVO;
 import com.aiear.vo.UserInfoVO;
-
 
 @RestController
 @RequestMapping("/user/*")
@@ -69,15 +69,25 @@ public class UserMngCont {
 						+ "<br>  - 페이지 선택"
 				)
 	@GetMapping(value = "getUserList.do")
-	public @ResponseBody List<Map<String, Object>> getUserList(
+	public @ResponseBody Map<String, Object> getUserList(
 			HttpServletRequest req,
 			HttpServletResponse res,
-			@RequestBody UserInfoVO userInfoVO) {
+			UserInfoVO userInfoVO) {
 		
 		logger.info("■■■■■■ getUserList / userInfoVO : {}", userInfoVO.beanToHmap(userInfoVO).toString());
 		List<Map<String, Object>> userList = userDAO.getUserListInfo(userInfoVO);
 		
-		return userList;
+		Map<String, Object> list = new HashMap<String, Object>();
+		
+		list.put("data", userList);
+		
+		userInfoVO.setRaw_cnt(null);
+		userInfoVO.setPage_cnt(null);
+		List<Map<String, Object>> userListSize = userDAO.getUserListInfo(userInfoVO);
+		
+		list.put("size", userListSize.size());
+		
+		return list;
 	}
 	
 	
@@ -113,7 +123,7 @@ public class UserMngCont {
 	@ApiOperation(value = "유저 가족관계 정보 조회"
 				, notes = "유저 가족관계 정보 조회")
 	@GetMapping(value = "getUserRelationList/{user_code}.do")
-	public @ResponseBody List<Map<String, Object>> getUserRelationList(
+	public @ResponseBody Map<String, Object> getUserRelationList(
 			HttpServletRequest req,
 			HttpServletResponse res,
 			UserInfoVO userInfoVO) {
@@ -122,7 +132,12 @@ public class UserMngCont {
 		
 		List<Map<String, Object>> userList = userDAO.getUserRelationList(userInfoVO);
 		
-		return userList;
+		Map<String, Object> list = new HashMap<String, Object>();
+		
+		list.put("data", userList);
+		list.put("size", userList.size());
+		
+		return list;
 	}
 	
 	
@@ -134,7 +149,7 @@ public class UserMngCont {
 	public @ResponseBody ResponseVO getUserCodeDupChk(
 			HttpServletRequest req,
 			HttpServletResponse res,
-			@RequestBody UserInfoVO userInfoVO) {
+			UserInfoVO userInfoVO) {
 		
 		logger.info("■■■■■■ getUserCodeDupChk / userInfoVO : {}", userInfoVO.beanToHmap(userInfoVO).toString());
 		ResponseVO rsltVO = new ResponseVO();

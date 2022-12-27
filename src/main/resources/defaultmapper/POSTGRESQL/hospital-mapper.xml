@@ -180,6 +180,7 @@
 		   AND t2.cat_cd = 'DOW'
 		 WHERE 1=1
 		   AND hospital_id = #{hospital_id}
+		 ORDER BY t2.disp_ord
 	</select>
 	
 	

@@ -44,7 +44,7 @@
 		</choose>
 		<if test='raw_cnt != null and !"".equals(raw_cnt) and page_cnt != null and !"".equals(page_cnt)'>
 		 LIMIT ${raw_cnt}
-		OFFSET (${page_cnt} - 1) * ${raw_cnt};
+		OFFSET (${page_cnt} - 1) * ${raw_cnt}
 		</if>
 	</select>
 	

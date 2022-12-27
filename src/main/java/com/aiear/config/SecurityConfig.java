@@ -3,10 +3,13 @@
  */
 package com.aiear.config;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -75,8 +78,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().configurationSource(corsConfigurationSource())
         .and().csrf().disable().authorizeRequests()
-        		.antMatchers(PERMIT_URL_ARRAY)
-                .permitAll().anyRequest().authenticated()
+        		.antMatchers(PERMIT_URL_ARRAY).permitAll()
+//        		.antMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
+        		.anyRequest().authenticated()
                 .and().exceptionHandling().and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
@@ -87,7 +91,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     	CorsConfiguration configuration = new CorsConfiguration();
     	
     	configuration.addAllowedOrigin("*");
-//    	configuration.addAllowedOrigin("");
     	configuration.addAllowedMethod("*");
     	configuration.addAllowedHeader("*");
     	configuration.setAllowCredentials(true);

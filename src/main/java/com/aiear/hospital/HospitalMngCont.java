@@ -67,15 +67,25 @@ public class HospitalMngCont {
 						+ "<br>  - 페이지 선택"
 				)
 	@GetMapping(value = "getHospitalList.do")
-	public @ResponseBody List<Map<String, Object>> getHospitalList(
+	public @ResponseBody Map<String, Object> getHospitalList(
 			HttpServletRequest req,
 			HttpServletResponse res,
-			@RequestBody HospitalInfoVO hsptInfoVO) {
+			HospitalInfoVO hsptInfoVO) {
 		
 		logger.info("■■■■■■ getHospitalList / hsptInfoVO : {}", hsptInfoVO.beanToHmap(hsptInfoVO).toString());
 		List<Map<String, Object>> hsptList = hsptDAO.getHospitalList(hsptInfoVO);
 		
-		return hsptList;
+		Map<String, Object> list = new HashMap<String, Object>();
+		
+		list.put("data", hsptList);
+		
+		hsptInfoVO.setRaw_cnt(null);
+		hsptInfoVO.setPage_cnt(null);
+		List<Map<String, Object>> hsptListSize = hsptDAO.getHospitalList(hsptInfoVO);
+		
+		list.put("size", hsptListSize.size());
+		
+		return list;
 	}
 	
 	
@@ -161,7 +171,7 @@ public class HospitalMngCont {
 					+ "\n 1. hospital_id"
 					+ "<br> 	- 필수값")
 	@GetMapping(value = "getHospitalClinicList/{hospital_id}.do")
-	public @ResponseBody List<Map<String, Object>> getHospitalClinicList(
+	public @ResponseBody Map<String, Object> getHospitalClinicList(
 			HttpServletRequest req,
 			HttpServletResponse res,
 			HospitalInfoVO hsptInfoVO) {
@@ -169,7 +179,12 @@ public class HospitalMngCont {
 		logger.info("■■■■■■ getHospitalClinicList / hsptInfoVO : {}", hsptInfoVO.beanToHmap(hsptInfoVO).toString());
 		List<Map<String, Object>> hsptList = hsptDAO.getHospitalClinicList(hsptInfoVO);
 		
-		return hsptList;
+		Map<String, Object> list = new HashMap<String, Object>();
+		
+		list.put("data", hsptList);
+		list.put("size", hsptList.size());
+		
+		return list;
 	}
 	
 	
