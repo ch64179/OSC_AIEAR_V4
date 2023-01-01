@@ -188,6 +188,13 @@
 	        <version>0.9.1</version>
 	    </dependency>
     	
+    	<!-- JSP -->
+    	<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
 	</dependencies>
 
 	<dependencyManagement>
