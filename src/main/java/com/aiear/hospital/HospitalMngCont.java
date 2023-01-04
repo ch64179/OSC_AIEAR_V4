@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -101,6 +102,7 @@ public class HospitalMngCont {
 	public @ResponseBody ResponseVO insertHospitalInfo(
 			HttpServletRequest req,
 			HttpServletResponse res,
+			@PathVariable String hospital_id,
 			@RequestBody HospitalInfoVO hsptInfoVO) {
 		
 		logger.info("■■■■■■ insertHospitalInfo / hsptInfoVO : {}", hsptInfoVO.beanToHmap(hsptInfoVO).toString());
@@ -110,6 +112,16 @@ public class HospitalMngCont {
 		int cnt = -1;
 		
 		try {
+			hsptInfoVO.setHospital_id(hospital_id);
+			
+			if(hsptInfoVO.getHospital_id() == null || "".equals(hsptInfoVO.getHospital_id())) {
+				rslt.put("msg", "병원 ID값이 없습니다.");
+				rslt.put("val", cnt);
+				rsltVO.setData(rslt);
+				res.setStatus(400);
+				return rsltVO;
+			}
+			
 			int dupCnt = hsptDAO.getHospitalDupChk(hsptInfoVO);
 			if(dupCnt > 0) {
 				rslt.put("cnt", cnt);
@@ -127,6 +139,8 @@ public class HospitalMngCont {
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
 			rsltVO.setStatus(400);
+			rsltVO.setMessage("병원 등록 실패");
+			res.setStatus(400);
 		}
 		
 		rsltVO.setData(rslt);
@@ -143,12 +157,21 @@ public class HospitalMngCont {
 	public @ResponseBody Map<String, Object> getHospitalDetail(
 			HttpServletRequest req,
 			HttpServletResponse res,
+			@PathVariable String hospital_id,
 			HospitalInfoVO hsptInfoVO) {
 
 		logger.info("■■■■■■ getHospitalDetail / hsptInfoVO : {}", hsptInfoVO.beanToHmap(hsptInfoVO).toString());
 		Map<String, Object> hsptInfo = new HashMap<String, Object>();
 		
 		try {
+			hsptInfoVO.setHospital_id(hospital_id);
+			
+			if(hsptInfoVO.getHospital_id() == null || "".equals(hsptInfoVO.getHospital_id())) {
+				hsptInfo.put("msg", "병원 ID값이 없습니다.");
+				res.setStatus(400);
+				return hsptInfo;
+			}
+			
 			hsptInfo = hsptDAO.getHospitalDetail(hsptInfoVO);
 			
 			byte[] bArr = (byte[]) hsptInfo.get("hospital_img");
@@ -157,9 +180,12 @@ public class HospitalMngCont {
 			if(base64 != null){
 				hsptInfo.put("hospital_img_str", (new String(base64, "UTF-8")));
 			} 
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			hsptInfoVO.setStatus(400);
+			hsptInfoVO.setMessage("병원 상세 정보 조회 실패");
+			res.setStatus(400);
 		}
 		
 		return hsptInfo;
@@ -174,12 +200,21 @@ public class HospitalMngCont {
 	public @ResponseBody Map<String, Object> getHospitalClinicList(
 			HttpServletRequest req,
 			HttpServletResponse res,
+			@PathVariable String hospital_id,
 			HospitalInfoVO hsptInfoVO) {
+		
+		Map<String, Object> list = new HashMap<String, Object>();
+		
+		hsptInfoVO.setHospital_id(hospital_id);
+		
+		if(hsptInfoVO.getHospital_id() == null || "".equals(hsptInfoVO.getHospital_id())) {
+			res.setStatus(400);
+			return list;
+		}
 		
 		logger.info("■■■■■■ getHospitalClinicList / hsptInfoVO : {}", hsptInfoVO.beanToHmap(hsptInfoVO).toString());
 		List<Map<String, Object>> hsptList = hsptDAO.getHospitalClinicList(hsptInfoVO);
 		
-		Map<String, Object> list = new HashMap<String, Object>();
 		
 		list.put("data", hsptList);
 		list.put("size", hsptList.size());
@@ -210,6 +245,7 @@ public class HospitalMngCont {
 	public @ResponseBody ResponseVO insertHospitalClinic(
 			HttpServletRequest req,
 			HttpServletResponse res,
+			@PathVariable String hospital_id,
 			@RequestBody HospitalInfoVO hsptInfoVO) {
 		
 		logger.info("■■■■■■ insertHospitalClinic / hsptInfoVO : {}", hsptInfoVO.beanToHmap(hsptInfoVO).toString());
@@ -219,12 +255,25 @@ public class HospitalMngCont {
 		int cnt = -1;
 		
 		try {
+			hsptInfoVO.setHospital_id(hospital_id);
+			
+			if(hsptInfoVO.getHospital_id() == null || "".equals(hsptInfoVO.getHospital_id())) {
+				rslt.put("msg", "병원 ID값이 없습니다.");
+				rslt.put("val", cnt);
+				rsltVO.setData(rslt);
+				res.setStatus(400);
+				return rsltVO;
+			}
+			
 			int dupCnt = hsptDAO.insertHospitalDupChk(hsptInfoVO);
 			if(dupCnt > 0) {
 				rslt.put("cnt", cnt);
 				rslt.put("msg", "FAIL / Duplication Hospital Clinic Mapp");
 			} else {
 				cnt = hsptDAO.insertHospitalClinic(hsptInfoVO);
+				
+				if(cnt < 1){ throw new Exception();}
+				
 				rslt.put("cnt", cnt);
 				rslt.put("msg", "SUCCESS");
 			}
@@ -233,6 +282,8 @@ public class HospitalMngCont {
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
 			rsltVO.setStatus(400);
+			rsltVO.setMessage("병원 진료시간 신규등록 실패");
+			res.setStatus(400);
 		}
 		
 		rsltVO.setData(rslt);
@@ -263,6 +314,7 @@ public class HospitalMngCont {
 	public @ResponseBody ResponseVO updateHospitalClinic(
 			HttpServletRequest req,
 			HttpServletResponse res,
+			@PathVariable String hospital_id,
 			@RequestBody HospitalInfoVO hsptInfoVO) {
 		
 		logger.info("■■■■■■ updateHospitalClinic / hsptInfoVO : {}", hsptInfoVO.beanToHmap(hsptInfoVO).toString());
@@ -272,9 +324,23 @@ public class HospitalMngCont {
 		int cnt = -1;
 		
 		try {
+			hsptInfoVO.setHospital_id(hospital_id);
+			
+			if(hsptInfoVO.getHospital_id() == null || "".equals(hsptInfoVO.getHospital_id())) {
+				rslt.put("msg", "병원 ID값이 없습니다.");
+				rslt.put("val", cnt);
+				rsltVO.setData(rslt);
+				res.setStatus(400);
+				return rsltVO;
+			}
+			
 			int dupCnt = hsptDAO.insertHospitalDupChk(hsptInfoVO);
+			
 			if(dupCnt > 0) {
 				cnt = hsptDAO.updateHospitalClinic(hsptInfoVO);
+				
+				if(cnt < 1){ throw new Exception();}
+				
 				rslt.put("cnt", cnt);
 				rslt.put("msg", "SUCCESS");
 			} else {
@@ -286,6 +352,8 @@ public class HospitalMngCont {
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
 			rsltVO.setStatus(400);
+			rsltVO.setMessage("병원 진료시간 수정 실패");
+			res.setStatus(400);
 		}
 		
 		rsltVO.setData(rslt);
@@ -305,6 +373,7 @@ public class HospitalMngCont {
 	public @ResponseBody ResponseVO updateHospitalInfo(
 			HttpServletRequest req,
 			HttpServletResponse res,
+			@PathVariable String hospital_id,
 			@RequestParam(value = "img_file", required = false) MultipartFile img_file, 
 			HospitalInfoVO hsptInfoVO) {
 		
@@ -315,6 +384,16 @@ public class HospitalMngCont {
 		int cnt = -1;
 		
 		try {
+			hsptInfoVO.setHospital_id(hospital_id);
+			
+			if(hsptInfoVO.getHospital_id() == null || "".equals(hsptInfoVO.getHospital_id())) {
+				rslt.put("msg", "병원 ID값이 없습니다.");
+				rslt.put("val", cnt);
+				rsltVO.setData(rslt);
+				res.setStatus(400);
+				return rsltVO;
+			}
+			
 			byte[] b_img_file;
 			if(img_file != null || "".equals(img_file)) {
 				b_img_file = img_file.getBytes();
@@ -322,6 +401,9 @@ public class HospitalMngCont {
 			}
 			
 			cnt = hsptDAO.updateHospitalInfo(hsptInfoVO);
+			
+			if(cnt < 1){ throw new Exception();}
+			
 			cnt = cnt > 0 ? hsptDAO.insertHospitalHst(hsptInfoVO) : cnt; 
 			
 			rslt.put("cnt", cnt);
@@ -331,6 +413,58 @@ public class HospitalMngCont {
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
 			rsltVO.setStatus(400);
+			rsltVO.setMessage("병원 상세정보 수정 실패");
+			res.setStatus(400);
+		}
+		
+		rsltVO.setData(rslt);
+		
+		return rsltVO;
+	}
+	
+	
+	@ApiOperation(value = "병원 탈퇴 처리"
+			, notes = "병원 탈퇴 처리")
+	@PostMapping(value = "deleteHospitalInfo/{hospital_id}.do")
+	public @ResponseBody ResponseVO deleteHospitalInfo(
+			HttpServletRequest req,
+			HttpServletResponse res,
+			@PathVariable String hospital_id,
+			@RequestBody HospitalInfoVO hsptInfoVO) {
+		
+		logger.info("■■■■■■ deleteHospitalInfo / hsptInfoVO : {}", hsptInfoVO.beanToHmap(hsptInfoVO).toString());
+		
+		ResponseVO rsltVO = new ResponseVO();
+		Map<String, Object> rslt = new HashMap<String, Object>();
+		int cnt = -1;
+		
+		try {
+			hsptInfoVO.setHospital_id(hospital_id);
+			hsptInfoVO.setUse_yn("N");
+			
+			if(hsptInfoVO.getHospital_id() == null || "".equals(hsptInfoVO.getHospital_id())) {
+				rslt.put("msg", "병원 ID값이 없습니다.");
+				rslt.put("val", cnt);
+				rsltVO.setData(rslt);
+				res.setStatus(400);
+				return rsltVO;
+			}
+			
+			cnt = hsptDAO.updateHospitalInfo(hsptInfoVO);
+			
+			if(cnt < 1){ throw new Exception();}
+			
+			cnt = cnt > 0 ? hsptDAO.insertHospitalHst(hsptInfoVO) : cnt; 
+			
+			rslt.put("cnt", cnt);
+			rslt.put("msg", "SUCCESS");
+		} catch (Exception e) {
+			// TODO: handle exception
+			rslt.put("msg", e.getMessage());
+			rslt.put("cnt", cnt);
+			rsltVO.setStatus(400);
+			rsltVO.setMessage("병원 탈퇴 처리 실패");
+			res.setStatus(400);
 		}
 		
 		rsltVO.setData(rslt);

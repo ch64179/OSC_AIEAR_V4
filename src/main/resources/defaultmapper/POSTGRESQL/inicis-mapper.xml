@@ -4,8 +4,10 @@
 <!-- namespace 명은 dao 와 일치하게 작성하면 됨 -->
 <mapper namespace="com.aiear.dao.InicisDAO">
 
-	<insert id="insertInicisPayHst" parameterType="map">
-		INSERT INTO t_inisis_pay_hst (
+	
+
+	<select id="insertInicisPayHst" parameterType="map" resultType="Integer">
+		INSERT INTO t_inicis_pay_hst (
 			appldate,
 			applnum,
 			appltime,
@@ -104,6 +106,24 @@
 			'admin',
 			now()
 		)
-	</insert>
+		RETURNING seq
+	</select>
 
+
+	<insert id="insertInicisUserPayMapp" parameterType="map">
+		INSERT INTO t_inicis_user_mapp (
+			hospital_id,
+			pay_seq,
+			use_flag,
+			gen_by,
+			gen_dt
+		) VALUES (
+			#{buyerName},
+			${paySeq},
+			'N',
+			#{buyerName},
+			NOW()
+		)
+	</insert>
+	
 </mapper>

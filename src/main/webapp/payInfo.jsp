@@ -43,14 +43,14 @@
 
                     <form name="sendPayForm" id="sendPayForm" method="post">
                     	<input type="hidden" name="version" value="1.0">
+                    	<input type="hidden" name="goodsname" value="추천 병원">
                     	<input type="hidden" name="mid" value="${mid}">
-                    	<input type="hidden" name="goodsname" value="테스트">
                     	<input type="hidden" name="oid" value="${oid}">
                     	<input type="hidden" name="price" value="${price}">
                     	<input type="hidden" name="currency" value="WON">
-                    	<input type="hidden" name="buyername" value="TEST">
-                    	<input type="hidden" name="buyertel" value="010-1234-5678">
-                    	<input type="hidden" name="buyeremail" value="test@test.com">
+                    	<input name="buyername" value="${buyername}">
+                    	<input name="buyertel" value="${buyertel}">
+                    	<input name="buyeremail" value="${buyeremail}">
                     	<input type="hidden" name="timestamp" value="${timestamp}">
                     	<input type="hidden" name="signature" value="${signature}">
                     	<input type="hidden" name="returnUrl" value="http://localhost:8080/inicis/payAfter.do?${_csrf.parameterName}=${_csrf.token}">
@@ -79,6 +79,6 @@
     	var frm = document.sendPayForm;
     	frm.gopaymethod.value = "Card";
     	
-    	document.getElementById("btnPay").click();
+//     	document.getElementById("btnPay").click();
     </script>
 </html>

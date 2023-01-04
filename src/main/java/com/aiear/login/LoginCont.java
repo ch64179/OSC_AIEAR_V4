@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver;
 
 import com.aiear.config.session.AuthRequest;
 import com.aiear.config.session.AuthenticateUtil;
@@ -109,6 +110,7 @@ public class LoginCont {
 			resVO.setMessage("아이디를 입력해 주세요.");
 			resVO.setResult(false);
 			resVO.setStatus(400);
+			res.setStatus(400);
 			return resVO;
 		}
 		
@@ -116,6 +118,7 @@ public class LoginCont {
 			resVO.setMessage("비밀번호를 입력해 주세요.");
 			resVO.setResult(false);
 			resVO.setStatus(400);
+			res.setStatus(400);
 			return resVO;
 		}
 		
@@ -125,6 +128,7 @@ public class LoginCont {
 			resVO.setMessage(loginVO.getUser_id() + " / 일치하는 계정이 없습니다.");
 			resVO.setResult(false);
 			resVO.setStatus(400);
+			res.setStatus(400);
 			return resVO;
 		}
 		
@@ -134,6 +138,7 @@ public class LoginCont {
 			resVO.setMessage("비밀번호가 일치하지 않습니다.");
 			resVO.setResult(false);
 			resVO.setStatus(400);
+			res.setStatus(400);
 		} else {
 			String authToken = null;
 			String refreshToken = null;
@@ -156,6 +161,7 @@ public class LoginCont {
 				e.printStackTrace();
 				resVO.setStatus(400);
 				resVO.setMessage(pwdChk.get("user_type") + " 일치하는 계정이 없습니다, 토큰 생성에 실패했습니다.");
+				res.setStatus(400);
 			}
 			
 			loginVO.setRefresh_token(refreshToken);
@@ -250,6 +256,7 @@ public class LoginCont {
 				resVO.setMessage("전화번호를 입력해 주세요");
 				resVO.setResult(false);
 				resVO.setStatus(400);
+				res.setStatus(400);
 				return resVO;
 			}
 			
@@ -259,6 +266,7 @@ public class LoginCont {
 				resVO.setMessage(loginVO.getUser_id() + " / 일치하는 계정이 없습니다.");
 				resVO.setResult(false);
 				resVO.setStatus(400);
+				res.setStatus(400);
 			} else { 
 				
 				//TODO. COOLSMS API 전송 로직 추가
@@ -284,6 +292,8 @@ public class LoginCont {
 		} catch (Exception e) {
 			// TODO: handle exception
 			resVO.setStatus(400);
+			resVO.setMessage("아이디 찾기 실패");
+			res.setStatus(400);
 		}
 		return resVO;
 	}
@@ -312,12 +322,14 @@ public class LoginCont {
 				resVO.setMessage("아이디를 입력해 주세요.");
 				resVO.setResult(false);
 				resVO.setStatus(400);
+				res.setStatus(400);
 				return resVO;
 			}
 			if(loginVO.getMobile_tel_no() == null || "".equals(loginVO.getMobile_tel_no().toString())){
 				resVO.setMessage("전화번호를 입력해 주세요");
 				resVO.setResult(false);
 				resVO.setStatus(400);
+				res.setStatus(400);
 				return resVO;
 			}
 			
@@ -327,6 +339,7 @@ public class LoginCont {
 				resVO.setMessage(loginVO.getMobile_tel_no() + " / 일치하는 계정이 없습니다.");
 				resVO.setResult(false);
 				resVO.setStatus(400);
+				res.setStatus(400);
 			} else {
 				//TODO. COOLSMS API 전송 로직 추가
 				//	1. 임시 비밀번호 생성 테스트
@@ -360,16 +373,20 @@ public class LoginCont {
 					resVO.setData(srchIdInfo);
 					resVO.setMessage("임시 비밀번호 발급 성공");
 					resVO.setResult(true);
+					res.setStatus(400);
 				} else {
 					resVO.setMessage("임시 비밀번호 저장 실패");
 					resVO.setResult(false);
 					resVO.setStatus(400);
+					res.setStatus(400);
 				}
 			}
 			
 		} catch (Exception e) {
 			// TODO: handle exception
 			resVO.setStatus(400);
+			resVO.setMessage("임시 비밀번호 발급 프로세스 오류");
+			res.setStatus(400);
 		}
 		
 		return resVO;

@@ -21,4 +21,14 @@ public interface InicisDAO {
 	public int insertInicisPayHst(Map<String, String> map);
 	
 	
+	/**
+	 * Description	: 
+	 * @method		: insertInicisUserPayMapp
+	 * @author		: pcw
+	 * @date		: 2023. 1. 2.
+	 * @param map
+	 * @return
+	 */
+	public int insertInicisUserPayMapp(Map<String, String> map);
+	
 }

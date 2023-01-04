@@ -29,10 +29,8 @@
 		   AND t2.cat_cd = 'USER_USE_YN'
 		 WHERE 1=1
 		<if test='user_nm != null and !"".equals(user_nm)'>
-		   AND t1.user_nm ILIKE CONCAT('%', #{user_nm}, '%')
-		</if>
-		<if test='user_code != null and !"".equals(user_code)'>
-		   AND t1.user_code ILIKE CONCAT('%', #{user_code}, '%')
+		   AND (t1.user_nm ILIKE CONCAT('%', #{user_nm}, '%')
+		    OR t1.user_code ILIKE CONCAT('%', #{user_nm}, '%'))
 		</if>
 		<choose>
 			<when test='order_type != null and !"".equals(order_type) and order_type2 != null and !"".equals(order_type2)'>

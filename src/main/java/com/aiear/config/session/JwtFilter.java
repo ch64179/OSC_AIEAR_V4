@@ -2,6 +2,7 @@ package com.aiear.config.session;
 
 import com.aiear.config.session.CustomUserDetailsService;
 import com.aiear.config.session.JwtUtil;
+import com.sun.mail.iap.Response;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
@@ -45,11 +46,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = null;
         String hospitalId = null;
-
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            token = authorizationHeader.substring(7);
-            hospitalId = jwtUtil.extractUserId(token);
-        }
+        
+        try {
+        	if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+        		token = authorizationHeader.substring(7);
+        		hospitalId = jwtUtil.extractUserId(token);
+        	}
+		} catch (Exception e) {
+			httpServletResponse.setStatus(403);
+		}
 
         if (hospitalId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 

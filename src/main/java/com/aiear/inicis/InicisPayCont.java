@@ -24,14 +24,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.aiear.dao.HospitalMngDAO;
 import com.aiear.dao.InicisDAO;
 import com.aiear.util.AES128;
 import com.aiear.util.SHA512;
+import com.aiear.vo.HospitalInfoVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inicis.std.util.HttpUtil;
 import com.inicis.std.util.ParseUtil;
@@ -48,6 +51,10 @@ public class InicisPayCont {
 	
 	@Autowired
 	private InicisDAO inicisDAO;
+	
+	@Autowired
+	private HospitalMngDAO hsptDAO;
+	
 	
 	
 	@GetMapping("/index")
@@ -74,8 +81,12 @@ public class InicisPayCont {
 	
 	
 	
-	@RequestMapping(value = "payInfo.do")
-	public String payInfo(ModelMap model, HttpServletRequest request)
+	@GetMapping(value = "payInfo/{hospital_id}.do")
+	public String payInfo(
+			ModelMap model,
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable String hospital_id)
 		throws Exception {
 		
 		String mid					= "INIpayTest";		                    // 상점아이디					
@@ -97,9 +108,16 @@ public class InicisPayCont {
 		signParam.put("timestamp", timestamp);
 
 		String signature = SignatureUtil.makeSignature(signParam);
-		
-		
 		String siteDomain = request.getRequestURL().toString();
+		
+		//병원 정보 조회
+		HospitalInfoVO hsptInfoVO = new HospitalInfoVO();
+		hsptInfoVO.setHospital_id(hospital_id);
+		Map<String, Object> hsptInfo = hsptDAO.getHospitalDetail(hsptInfoVO);
+		
+		model.addAttribute("buyername", hospital_id);
+		model.addAttribute("buyertel", hsptInfo.get("mgr_tel_no"));
+		model.addAttribute("buyeremail", hospital_id + "@test.com");
 		
 		model.addAttribute("mid", mid);
 		model.addAttribute("oid", orderNumber);
@@ -115,7 +133,67 @@ public class InicisPayCont {
 	}
 	
 	
-	@RequestMapping(value = "payAfter.do")
+	@GetMapping(value = "payInfoMap/{hospital_id}.do")
+	public @ResponseBody Map<String, Object> payInfoMap(
+			HttpServletRequest request,
+			HttpServletResponse response,
+			@PathVariable String hospital_id)
+		throws Exception {
+		
+		Map<String, Object> data = new HashMap<String, Object>();
+		
+		String mid					= "INIpayTest";		                    // 상점아이디					
+		String signKey			    = "SU5JTElURV9UUklQTEVERVNfS0VZU1RS";	// 웹 결제 signkey
+		
+		String mKey = SignatureUtil.hash(signKey, "SHA-256");
+
+		String timestamp			= SignatureUtil.getTimestamp();			// util에 의해서 자동생성
+		String orderNumber			= mid+"_"+SignatureUtil.getTimestamp();	// 가맹점 주문번호(가맹점에서 직접 설정)
+		String price				= "1000";								// 상품가격(특수기호 제외, 가맹점에서 직접 설정)
+
+		String cardNoInterestQuota = "11-2:3:,34-5:12,14-6:12:24,12-12:36,06-9:12,01-3:4";
+		String cardQuotaBase = "2:3:4:5:6:11:12:24:36";
+
+		Map<String, String> signParam = new HashMap<String, String>();
+
+		signParam.put("oid", orderNumber);
+		signParam.put("price", price);
+		signParam.put("timestamp", timestamp);
+
+		String signature = SignatureUtil.makeSignature(signParam);
+		String siteDomain = request.getRequestURL().toString();
+		
+		//병원 정보 조회
+		HospitalInfoVO hsptInfoVO = new HospitalInfoVO();
+		hsptInfoVO.setHospital_id(hospital_id);
+		Map<String, Object> hsptInfo = hsptDAO.getHospitalDetail(hsptInfoVO);
+		
+		data.put("buyername", hospital_id);
+		data.put("buyertel", hsptInfo.get("mgr_tel_no"));
+		data.put("buyeremail", hospital_id + "@test.com");
+		
+		data.put("mid", mid);
+		data.put("oid", orderNumber);
+		data.put("price", price);
+		data.put("timestamp", timestamp);
+		data.put("signature", signature);
+		data.put("mKey", mKey);
+		data.put("cardQuotaBase", cardQuotaBase);
+		data.put("cardNoInterestQuota", cardNoInterestQuota);
+		data.put("siteDomain", siteDomain);
+		
+		data.put("goodsname", "추천 병원");
+		data.put("version", "1.0");
+		data.put("currency", "WON");
+		data.put("returnUrl", "http://localhost:8080/inicis/payAfter.do");
+		data.put("closeUrl", "");
+		data.put("acceptmethod", "ARDPOINT:HPP(1):no_receipt:va_receipt:vbanknoreg(0):below1000");
+			
+	    return data;
+	}
+	
+	
+	@PostMapping(value = "payAfter.do")
 	public String payAfter(ModelMap model, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String retUrl = "payInfoReturn";
 		
@@ -233,7 +311,14 @@ public class InicisPayCont {
 			resultMap.put("resultMsg", paramMap.get("resultMsg"));
 		}
 		
-		inicisDAO.insertInicisPayHst(resultMap);
+		// 결제요청 결과이력 적재
+		int paySeq = inicisDAO.insertInicisPayHst(resultMap);
+		resultMap.put("paySeq", String.valueOf(paySeq));
+		
+		// 결제 성공시 계정별 결제 매핑테이블 적재
+		if("0000".equals(paramMap.get("resultCode"))){
+			inicisDAO.insertInicisUserPayMapp(resultMap);
+		}
 		
 		model.put("resultMap", resultMap);
 		
@@ -265,7 +350,7 @@ public class InicisPayCont {
 		String clientIp = "111.222.333.889";
 		String mid = "INIpayTest";
 		String tid = model.get("tid").toString(); 			
-		String msg = "가상계좌 부분환불요청";
+		String msg = "추천병원 가상계좌 부분환불요청";
 		String price = model.get("price").toString();												
 		String confirmPrice = "0";									
 		String refundBankCode = "";
@@ -276,7 +361,7 @@ public class InicisPayCont {
 		String enc_refundAcctNum = aes128.encAES(refundAcctNum, key, iv);
 		
 		// Hash Encryption
-		String data_hash = key + type + paymethod + timestamp + clientIp + mid + tid + price + confirmPrice + enc_refundAcctNum ;
+		String data_hash = key + type + paymethod + timestamp + clientIp + mid + tid + price + confirmPrice + enc_refundAcctNum;
 		String hashData = sha512.hash(data_hash);
 		
 		// Request URL

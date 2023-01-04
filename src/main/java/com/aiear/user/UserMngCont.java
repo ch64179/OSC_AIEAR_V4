@@ -54,9 +54,9 @@ public class UserMngCont {
 						+ "<br> ** > order_type, oder_type2 2개다 있어야지 정렬**"
 						+ "<br> ** > raw_cnt, page_cnt 2개다 있어야지 Paginatoin 가능**"
 						+ "\n 1. user_nm"
-						+ "<br> 	- LIKE 검색"
-						+ "\n 2. user_code"
-						+ "<br> 	- LIKE 검색"
+						+ "<br> 	- 이름, 코드 LIKE 검색"
+//						+ "\n 2. user_code"
+//						+ "<br> 	- LIKE 검색"
 						+ "\n 3. order_type"
 						+ "<br> 	- Default : 가입일(GEN_DT)"
 						+ " - 활동 상태(USE_YN), 회원 닉네임(USER_NM), 회원 코드(USER_CODE), 가입 <br> 정보(USER_EMAIL), 가입일(GEN_DT)"
@@ -97,23 +97,41 @@ public class UserMngCont {
 	public @ResponseBody Map<String, Object> getUserDetail(
 			HttpServletRequest req,
 			HttpServletResponse res,
+			@PathVariable String user_code,
 			UserInfoVO userInfoVO) {
 	
 		logger.info("■■■■■■ getUserDetail / userInfoVO : {}", userInfoVO.beanToHmap(userInfoVO).toString());
 		Map<String, Object> userInfo = new HashMap<String, Object>();
 		
 		try {
+			userInfoVO.setUser_code(user_code);
+			
+			if(userInfoVO.getUser_code() == null || "".equals(userInfoVO.getUser_code())) {
+				userInfo.put("msg", "유저 코드값이 없습니다.");
+				res.setStatus(400);
+				return userInfo;
+			}
+			
 			userInfo = userDAO.getUserDetailInfo(userInfoVO);
 			
-			byte[] bArr = (byte[]) userInfo.get("user_img");
-			byte[] base64 = Base64.encodeBase64(bArr);
+			if(userInfo != null){
+				byte[] bArr = (byte[]) userInfo.get("user_img");
+				byte[] base64 = Base64.encodeBase64(bArr);
+				
+				if(base64 != null){
+					userInfo.put("user_img_str", (new String(base64, "UTF-8")));
+				} 
+			}
 			
-			if(base64 != null){
-				userInfo.put("user_img_str", (new String(base64, "UTF-8")));
-			} 
-		} catch (UnsupportedEncodingException e) {
+			userInfoVO.setResult(true);
+			
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			userInfoVO.setStatus(400);
+			userInfoVO.setResult(false);
+			userInfoVO.setMessage("유저 상세 정보 조회 실패");
+			res.setStatus(400);
 		}
 		
 		return userInfo;
@@ -156,6 +174,13 @@ public class UserMngCont {
 		Map<String, Object> rslt = new HashMap<String, Object>();
 		
 		try {
+			if(userInfoVO.getUser_code() == null || "".equals(userInfoVO.getUser_code())) {
+				rslt.put("msg", "유저 코드값이 없습니다.");
+				rsltVO.setData(rslt);
+				res.setStatus(400);
+				return rsltVO;
+			}
+			
 			int cnt = userDAO.getUserCodeDupChk(userInfoVO);
 			
 			String msg = cnt > 0 ? "중복 코드가 존재합니다." : "사용가능합니다.";
@@ -164,9 +189,14 @@ public class UserMngCont {
 			rslt.put("msg", msg);
 			
 			rsltVO.setData(rslt);
+			rsltVO.setResult(true);
+			
 		} catch (Exception e) {
 			// TODO: handle exception
 			rsltVO.setStatus(400);
+			rsltVO.setResult(false);
+			rsltVO.setMessage("유저 코드 중복체크 실패");
+			res.setStatus(400);
 		}
 		
 		return rsltVO;
@@ -187,6 +217,7 @@ public class UserMngCont {
 	public @ResponseBody ResponseVO updateUserDetail(
 			HttpServletRequest req,
 			HttpServletResponse res,
+			@PathVariable String user_code,
 			@RequestParam(value = "img_file", required = false) MultipartFile img_file,
 			UserInfoVO userInfoVO) {
 		
@@ -197,6 +228,16 @@ public class UserMngCont {
 		int cnt = -1;
 		
 		try {
+			userInfoVO.setUser_code(user_code);
+			
+			if(userInfoVO.getUser_code() == null || "".equals(userInfoVO.getUser_code())) {
+				rslt.put("msg", "유저 코드값이 없습니다.");
+				rslt.put("val", cnt);
+				rsltVO.setData(rslt);
+				res.setStatus(400);
+				return rsltVO;
+			}
+			
 			byte[] b_img_file;
 			if(img_file != null || "".equals(img_file)) {
 				b_img_file = img_file.getBytes();
@@ -204,16 +245,21 @@ public class UserMngCont {
 			}
 			
 			cnt = userDAO.updateUserDetail(userInfoVO);
+			
+			if(cnt < 1){ throw new Exception(); }
+			
 			cnt = cnt > 0 ? userDAO.insertUserHst(userInfoVO) : cnt;
 			
 			rslt.put("cnt", cnt);
 			rslt.put("msg", "SUCCESS");
 			
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
 			rsltVO.setStatus(400);
+			rsltVO.setMessage("유저 정보 업데이트 실패");
+			res.setStatus(400);
 		}
 		
 		rsltVO.setData(rslt);
@@ -235,14 +281,26 @@ public class UserMngCont {
 			@PathVariable String user_code,
 			@RequestBody UserInfoVO userInfoVO) {
 		
-		userInfoVO.setUser_code(user_code);
-		logger.info("■■■■■■ insertUserFamilyMapp / userInfoVO : {}", userInfoVO.beanToHmap(userInfoVO).toString());
-		
 		ResponseVO rsltVO = new ResponseVO();
 		Map<String, Object> rslt = new HashMap<String, Object>();
 		int cnt = -1;
+		
+		logger.info("■■■■■■ insertUserFamilyMapp / userInfoVO : {}", userInfoVO.beanToHmap(userInfoVO).toString());
+		
 		try {
+			userInfoVO.setUser_code(user_code);
+			
+			if(userInfoVO.getUser_code() == null || "".equals(userInfoVO.getUser_code())) {
+				rslt.put("msg", "유저 코드값이 없습니다.");
+				rslt.put("val", cnt);
+				rsltVO.setData(rslt);
+				res.setStatus(400);
+				return rsltVO;
+			}
+			
 			cnt = userDAO.insertUserFamilyMapp(userInfoVO);
+			
+			if(cnt < 1){ throw new Exception();}
 			
 			rslt.put("cnt", cnt);
 			rslt.put("msg", "SUCCESS");
@@ -251,6 +309,8 @@ public class UserMngCont {
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
 			rsltVO.setStatus(400);
+			rsltVO.setMessage("유저 가족관계 신규등록 실패");
+			res.setStatus(400);
 		}
 		
 		rsltVO.setData(rslt);
@@ -282,7 +342,19 @@ public class UserMngCont {
 		int cnt = -1;
 		
 		try {
+			userInfoVO.setUser_code(user_code);
+			
+			if(userInfoVO.getUser_code() == null || "".equals(userInfoVO.getUser_code())) {
+				rslt.put("msg", "유저 코드값이 없습니다.");
+				rslt.put("val", cnt);
+				rsltVO.setData(rslt);
+				res.setStatus(400);
+				return rsltVO;
+			}
+			
 			cnt = userDAO.updateUserFamilyMapp(userInfoVO);
+			
+			if(cnt < 1){ throw new Exception();}
 			
 			rslt.put("cnt", cnt);
 			rslt.put("msg", "SUCCESS");
@@ -291,6 +363,8 @@ public class UserMngCont {
 			rslt.put("msg", e.getMessage());
 			rslt.put("cnt", cnt);
 			rsltVO.setStatus(400);
+			rsltVO.setMessage("유저 가족관계 수정 실패");
+			res.setStatus(400);
 		}
 
 		rsltVO.setData(rslt);
@@ -305,6 +379,7 @@ public class UserMngCont {
 	public @ResponseBody ResponseVO deleteUserAction(
 			HttpServletRequest req,
 			HttpServletResponse res,
+			@PathVariable String user_code,
 			UserInfoVO userInfoVO) {
 		
 		logger.info("■■■■■■ deleteUserAction / userInfoVO : {}", userInfoVO.beanToHmap(userInfoVO).toString());
@@ -313,15 +388,21 @@ public class UserMngCont {
 		Map<String, Object> rsltMap = new HashMap<String, Object>();
 		Integer cnt = -1;
 		
-		if(userInfoVO.getUser_code() == null || "".equals(userInfoVO.getUser_code())) {
-			rsltMap.put("msg", "유저_CODE is NULL");
-			rsltMap.put("val", cnt);
-			rsltVO.setData(rsltMap);
-			return rsltVO;
-		}
-		
 		try {
+			userInfoVO.setUser_code(user_code);
+			
+			if(userInfoVO.getUser_code() == null || "".equals(userInfoVO.getUser_code())) {
+				rsltMap.put("msg", "유저 코드값이 없습니다.");
+				rsltMap.put("val", cnt);
+				rsltVO.setData(rsltMap);
+				res.setStatus(400);
+				return rsltVO;
+			}
+			
 			cnt = userDAO.deleteUserAction(userInfoVO);
+			
+			if(cnt < 1){ throw new Exception();}
+			
 			cnt = cnt > 0 ? userDAO.insertUserHst(userInfoVO) : cnt;
 			
 			rsltMap.put("msg", "SUCCESS");
@@ -332,6 +413,8 @@ public class UserMngCont {
 			rsltMap.put("msg", e.getMessage());
 			rsltMap.put("val", cnt);
 			rsltVO.setStatus(400);
+			rsltVO.setMessage("유저 탈퇴 처리 실패");
+			res.setStatus(400);
 		}
 		
 		rsltVO.setData(rsltMap);
