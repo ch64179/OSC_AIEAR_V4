@@ -129,7 +129,7 @@ public class InicisPayCont {
 		model.addAttribute("cardNoInterestQuota", cardNoInterestQuota);
 		model.addAttribute("siteDomain", siteDomain);
 			
-	    return "payInfo";
+	    return "payInfo2";
 	}
 	
 	
@@ -182,10 +182,10 @@ public class InicisPayCont {
 		data.put("cardNoInterestQuota", cardNoInterestQuota);
 		data.put("siteDomain", siteDomain);
 		
-		data.put("goodsname", "추천 병원");
+		data.put("goodname", "추천 병원");
 		data.put("version", "1.0");
 		data.put("currency", "WON");
-		data.put("returnUrl", "http://localhost:8080/inicis/payAfter.do");
+		data.put("returnUrl", "http://103.22.220.93:8080/inicis/payAfter.do");
 		data.put("closeUrl", "");
 		data.put("acceptmethod", "ARDPOINT:HPP(1):no_receipt:va_receipt:vbanknoreg(0):below1000");
 			

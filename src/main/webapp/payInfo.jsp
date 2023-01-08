@@ -43,7 +43,7 @@
 
                     <form name="sendPayForm" id="sendPayForm" method="post">
                     	<input type="hidden" name="version" value="1.0">
-                    	<input type="hidden" name="goodsname" value="추천 병원">
+                    	<input type="hidden" name="goodname" value="추천 병원">
                     	<input type="hidden" name="mid" value="${mid}">
                     	<input type="hidden" name="oid" value="${oid}">
                     	<input type="hidden" name="price" value="${price}">
@@ -53,10 +53,10 @@
                     	<input name="buyeremail" value="${buyeremail}">
                     	<input type="hidden" name="timestamp" value="${timestamp}">
                     	<input type="hidden" name="signature" value="${signature}">
-                    	<input type="hidden" name="returnUrl" value="http://localhost:8080/inicis/payAfter.do?${_csrf.parameterName}=${_csrf.token}">
-                    	<input type="hidden" name="closeUrl" value="http://localhost:8080/inicis/close?${_csrf.parameterName}=${_csrf.token}">
+                    	<input type="hidden" name="returnUrl" value="http://103.22.220.93:8080/inicis/payAfter.do?${_csrf.parameterName}=${_csrf.token}">
+                    	<input type="hidden" name="closeUrl" value="http://103.22.220.93:8080/inicis/close?${_csrf.parameterName}=${_csrf.token}">
                     	<input type="hidden" name="mKey" value="${mKey}">
-                    	<input type="hidden" name="gopaymethod" value="">
+                    	<input type="hidden" name="gopaymethod" value="Card:Directbank:vbank">
                     	<input type="hidden" name="offerPeriod" value="">
                     	<input type="hidden" name="acceptmethod" value="CARDPOINT:HPP(1):no_receipt:va_receipt:vbanknoreg(0):below1000">
                     	<input type="hidden" name="languageView" value="">

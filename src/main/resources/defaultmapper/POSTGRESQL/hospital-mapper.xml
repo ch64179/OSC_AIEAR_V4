@@ -34,10 +34,8 @@
 		   AND t3.cat_cd = 'HOSPITAL_NEW_YN'
 		 WHERE 1=1
 		<if test='hospital_nm != null and !"".equals(hospital_nm)'>
-		   AND t1.hospital_nm ILIKE CONCAT('%', #{hospital_nm}, '%')
-		</if>
-		<if test='hospital_id != null and !"".equals(hospital_id)'>
-		   AND t1.hospital_id ILIKE CONCAT('%', #{hospital_id}, '%')
+		   AND (t1.hospital_nm ILIKE CONCAT('%', #{hospital_nm}, '%')
+		    OR t1.hospital_id ILIKE CONCAT('%', #{hospital_id}, '%'))
 		</if>
 		<choose>
 			<when test='order_type != null and !"".equals(order_type) and order_type2 != null and !"".equals(order_type2)'>

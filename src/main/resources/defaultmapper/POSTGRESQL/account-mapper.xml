@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 명은 dao 와 일치하게 작성하면 됨 -->
+<mapper namespace="com.aiear.dao.AccountMngDAO">
+
+	<!-- 병원 정보 리스트 조회 -->
+	<select id="getAccountList" parameterType="accountInfoVO" resultType="hmap">
+				SELECT t1.new_yn
+			 , t3.cd_val AS new_yn_nm
+			 , t1.use_yn
+			 , t2.cd_val AS use_yn_nm
+			 , t1.hospital_nm
+			 , t1.hospital_id
+			 , t1.hospital_pwd
+			 , t1.gen_by
+			 , t1.gen_dt
+			 , t1.mdfy_by
+			 , t1.mdfy_dt
+			 , t1.user_type
+		  FROM t_hospital_info t1
+	INNER JOIN t_cm_cd t2
+			ON t1.use_yn = t2.cd
+		   AND t2.cat_cd = 'HOSPITAL_USE_YN'
+	INNER JOIN t_cm_cd t3
+			ON t1.new_yn = t3.cd
+		   AND t3.cat_cd = 'HOSPITAL_NEW_YN'
+		 WHERE 1=1
+		   AND t1.user_type = 'USER'
+		<if test='hospital_nm != null and !"".equals(hospital_nm)'>
+		   AND (t1.hospital_nm ILIKE CONCAT('%', #{hospital_nm}, '%')
+		    OR t1.hospital_id ILIKE CONCAT('%', #{hospital_id}, '%'))
+		</if>
+		<choose>
+			<when test='order_type != null and !"".equals(order_type) and order_type2 != null and !"".equals(order_type2)'>
+		 ORDER BY t1.${order_type} ${order_type2}
+			</when>
+			<otherwise>
+		 ORDER BY t1.GEN_DT DESC
+			</otherwise>
+		</choose>
+		<if test='raw_cnt != null and !"".equals(raw_cnt) and page_cnt != null and !"".equals(page_cnt)'>
+		 LIMIT ${raw_cnt}
+		OFFSET (${page_cnt} - 1) * ${raw_cnt}
+		</if>
+	</select>
+	
+	
+	<update id="updateAccountInfo" parameterType="accountInfoVO">
+		UPDATE t_hospital_info
+		   SET mdfy_dt = now()
+		<if test='hospital_pwd != null and !"".equals(hospital_pwd)'> 
+			 , hospital_pwd = #{hospital_pwd}
+		</if>
+			 , mdfy_by = 'admin'
+		WHERE 1=1
+		  AND hospital_id = #{hospital_id}
+	</update>
+	
+</mapper>

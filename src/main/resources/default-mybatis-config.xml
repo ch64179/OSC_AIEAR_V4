@@ -20,6 +20,9 @@
 		<!-- 병원 VO -->
 		<typeAlias alias="hospitalInfoVO" type="com.aiear.vo.HospitalInfoVO" />
 		
+		<!-- 계정관리 VO -->
+		<typeAlias alias="accountInfoVO" type="com.aiear.vo.AccountInfoVO" />
+		
 		<!-- SMS VO -->
 		<typeAlias alias="smsVO" type="com.aiear.vo.SMSVO" />
 		
