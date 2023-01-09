@@ -6,7 +6,7 @@
 
 	<!-- 병원 정보 리스트 조회 -->
 	<select id="getAccountList" parameterType="accountInfoVO" resultType="hmap">
-				SELECT t1.new_yn
+		SELECT t1.new_yn
 			 , t3.cd_val AS new_yn_nm
 			 , t1.use_yn
 			 , t2.cd_val AS use_yn_nm
@@ -56,5 +56,10 @@
 		WHERE 1=1
 		  AND hospital_id = #{hospital_id}
 	</update>
+	
+	
+	<select id="" parameterType="accountInfoVO">
+		SELECT 
+	</select>
 	
 </mapper>

@@ -3,6 +3,9 @@ package com.aiear.account;
 import io.swagger.annotations.ApiOperation;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.aiear.dao.AccountMngDAO;
 import com.aiear.dao.CommonDAO;
 import com.aiear.dao.HospitalMngDAO;
+import com.aiear.util.CsvUtil;
+import com.aiear.util.DateUtil;
+import com.aiear.util.ExcelUtil;
 import com.aiear.vo.AccountInfoVO;
 import com.aiear.vo.HospitalInfoVO;
 import com.aiear.vo.ResponseVO;
@@ -92,6 +98,42 @@ public class AccountMngCont {
 		
 		return list;
 	}
+	
+	
+	@GetMapping(value = "exportAccountList.do")
+	public void exportAccountList(
+			HttpServletRequest req,
+			HttpServletResponse res,
+			AccountInfoVO accInfoVO
+			) {
+//			res.setContentType("application/octet-stream");
+//	        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+//	        String currentDateTime = dateFormatter.format(new Date());
+//
+//	        String headerKey = "Content-Disposition";
+//	        String headerValue = "attachment; filename=student" + currentDateTime + ".xlsx";
+//	        res.setHeader(headerKey, headerValue);
+//
+//	        List<Student> listOfStudents = studentService.getTheListStudent();
+//	        ExcelGenerator generator = new ExcelGenerator(listOfStudents);
+//	        generator.generateExcelFile(res);
+		
+		try {
+			List<Map<String, Object>> accListSize = accDAO.getAccountList(accInfoVO);
+			
+			String excelName = DateUtil.getToday() + "_계정관리_리스트"; 
+			String titleList = "new_yn|new_yn_nm|use_yn|use_yn_nm|hospital_nm|hospital_id|hospital_pwd|gen_by|gen_dt|mdfy_by|mdfy_dt|user_type";
+			String columnList = "new_yn|new_yn_nm|use_yn|use_yn_nm|hospital_nm|hospital_id|hospital_pwd|gen_by|gen_dt|mdfy_by|mdfy_dt|user_type";
+			
+			ExcelUtil.ExcelfileCreate(res, titleList, columnList, accListSize, excelName);
+//			CsvUtil.createCSVFile(res, accListSize, titleList, columnList, excelName);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			res.setStatus(400);
+		}
+	}
+			
 	
 	
 	@ApiOperation(value = "계정 관리 비밀번호 수정"
