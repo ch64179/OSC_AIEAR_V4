@@ -322,9 +322,7 @@
 		</if>
 			 , mdfy_by = 'admin'
 			 , mdfy_dt = now()
-		<if test='new_yn != null and !"".equals(new_yn)'>
-			 , new_yn = #{new_yn}
-		</if>
+			 , new_yn = 'N'
 		WHERE 1=1
 		  AND hospital_id = #{hospital_id}
 	</update>

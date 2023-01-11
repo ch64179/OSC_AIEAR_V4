@@ -106,18 +106,6 @@ public class AccountMngCont {
 			HttpServletResponse res,
 			AccountInfoVO accInfoVO
 			) {
-//			res.setContentType("application/octet-stream");
-//	        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-//	        String currentDateTime = dateFormatter.format(new Date());
-//
-//	        String headerKey = "Content-Disposition";
-//	        String headerValue = "attachment; filename=student" + currentDateTime + ".xlsx";
-//	        res.setHeader(headerKey, headerValue);
-//
-//	        List<Student> listOfStudents = studentService.getTheListStudent();
-//	        ExcelGenerator generator = new ExcelGenerator(listOfStudents);
-//	        generator.generateExcelFile(res);
-		
 		try {
 			List<Map<String, Object>> accListSize = accDAO.getAccountList(accInfoVO);
 			

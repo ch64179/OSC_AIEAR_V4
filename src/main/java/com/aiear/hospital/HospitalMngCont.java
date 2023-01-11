@@ -117,6 +117,7 @@ public class HospitalMngCont {
 			if(hsptInfoVO.getHospital_id() == null || "".equals(hsptInfoVO.getHospital_id())) {
 				rslt.put("msg", "병원 ID값이 없습니다.");
 				rslt.put("val", cnt);
+				rsltVO.setStatus(400);
 				rsltVO.setData(rslt);
 				res.setStatus(400);
 				return rsltVO;
@@ -126,6 +127,8 @@ public class HospitalMngCont {
 			if(dupCnt > 0) {
 				rslt.put("cnt", cnt);
 				rslt.put("msg", "FAIL / Duplication ID");
+				rsltVO.setStatus(400);
+				res.setStatus(400);
 			} else {
 				cnt = hsptDAO.insertHospitalInfo(hsptInfoVO);
 				cnt = cnt > 0 ? hsptDAO.insertHospitalHst(hsptInfoVO) : cnt; 
@@ -174,12 +177,16 @@ public class HospitalMngCont {
 			
 			hsptInfo = hsptDAO.getHospitalDetail(hsptInfoVO);
 			
-			byte[] bArr = (byte[]) hsptInfo.get("hospital_img");
-			byte[] base64 = Base64.encodeBase64(bArr);
+			if(hsptInfo.get("hospital_img") != null) {
+				byte[] bArr = (byte[]) hsptInfo.get("hospital_img");
+				byte[] base64 = Base64.encodeBase64(bArr);
+				
+				if(base64 != null){
+					hsptInfo.put("hospital_img_base64", base64);
+					hsptInfo.put("hospital_img_str", ("data:image/jpeg;base64," + new String(base64, "UTF-8")));
+				} 
+			}
 			
-			if(base64 != null){
-				hsptInfo.put("hospital_img_str", (new String(base64, "UTF-8")));
-			} 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -269,6 +276,7 @@ public class HospitalMngCont {
 			if(dupCnt > 0) {
 				rslt.put("cnt", cnt);
 				rslt.put("msg", "FAIL / Duplication Hospital Clinic Mapp");
+				res.setStatus(400);
 			} else {
 				cnt = hsptDAO.insertHospitalClinic(hsptInfoVO);
 				
@@ -346,6 +354,7 @@ public class HospitalMngCont {
 			} else {
 				rslt.put("cnt", cnt);
 				rslt.put("msg", "FAIL / No Data Hospital Clinic Mapp");
+				res.setStatus(400);
 			}
 		} catch (Exception e) {
 			// TODO: handle exception

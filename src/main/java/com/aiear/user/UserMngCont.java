@@ -114,12 +114,12 @@ public class UserMngCont {
 			
 			userInfo = userDAO.getUserDetailInfo(userInfoVO);
 			
-			if(userInfo != null){
+			if(userInfo.get("user_img") != null){
 				byte[] bArr = (byte[]) userInfo.get("user_img");
 				byte[] base64 = Base64.encodeBase64(bArr);
 				
 				if(base64 != null){
-					userInfo.put("user_img_str", (new String(base64, "UTF-8")));
+					userInfo.put("user_img_str", ("data:image/jpeg;base64," + new String(base64, "UTF-8")));
 				} 
 			}
 			
@@ -185,11 +185,19 @@ public class UserMngCont {
 			
 			String msg = cnt > 0 ? "중복 코드가 존재합니다." : "사용가능합니다.";
 			
+			
 			rslt.put("cnt", cnt);
 			rslt.put("msg", msg);
 			
 			rsltVO.setData(rslt);
-			rsltVO.setResult(true);
+			
+			if(cnt > 0){
+				rsltVO.setStatus(400);
+				rsltVO.setResult(false);
+				res.setStatus(400);
+			} else {
+				rsltVO.setResult(true);
+			}
 			
 		} catch (Exception e) {
 			// TODO: handle exception
