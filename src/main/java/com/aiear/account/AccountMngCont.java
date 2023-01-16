@@ -2,14 +2,13 @@ package com.aiear.account;
 
 import io.swagger.annotations.ApiOperation;
 
-import java.io.UnsupportedEncodingException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,9 +32,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.aiear.dao.AccountMngDAO;
 import com.aiear.dao.CommonDAO;
 import com.aiear.dao.HospitalMngDAO;
-import com.aiear.util.CsvUtil;
 import com.aiear.util.DateUtil;
 import com.aiear.util.ExcelUtil;
+import com.aiear.util.HttpUrlUtil;
 import com.aiear.vo.AccountInfoVO;
 import com.aiear.vo.HospitalInfoVO;
 import com.aiear.vo.ResponseVO;
@@ -122,6 +122,73 @@ public class AccountMngCont {
 		}
 	}
 			
+	
+	@PostMapping(value = "inferenceTest.do")
+	public @ResponseBody Map<String, Object> inferenceTest(
+			HttpServletRequest req,
+			HttpServletResponse res,
+			@RequestParam(value = "img_file", required = true) MultipartFile img_file,
+			@RequestParam Integer c) {
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+		
+		try {
+		
+			byte[] b_img_file = img_file.getBytes();
+			byte[] base64 = Base64.encodeBase64(b_img_file);
+			
+			BufferedImage bufferedImage = ImageIO.read(img_file.getInputStream());
+		    int width = bufferedImage.getWidth();
+		    int height = bufferedImage.getHeight();
+			
+		    
+		    JSONObject jsonObj = new JSONObject();
+		    
+		    jsonObj.put("img", new String(base64, "UTF-8"));
+		    jsonObj.put("w", width);
+		    jsonObj.put("h", height);
+		    jsonObj.put("c", c);
+			
+			String url = "http://103.22.220.93:8000/inference/";
+			String method = "POST";
+			
+			result = HttpUrlUtil.getHttpBodyDataToMap(url, method, jsonObj);
+			
+			logger.info("■■■■■■ 통신결과 : {}", result.toString());
+			
+			//success : HTTP 통신 결과
+			//msg : "[FAIL] ~" 에러, 성공할 경우 없음
+			//result : 결과값
+			//	- Ar
+			//	- Myri
+			//	- Normal
+			//	- Ome
+			//	- Tp
+			//	- Tumor
+			Boolean aiInferRslt = false;
+			
+			//통신 결과 여부 분기점
+			if((boolean) result.get("success")){
+				//AI 추론 결과 분기점
+				if("".equals(result.get("msg"))){
+					aiInferRslt = true;
+				} else {
+					aiInferRslt = false;
+				}
+			}
+			
+			if(aiInferRslt){
+				// DB에 적재 테이블 설계 후 추가
+			}
+			
+		logger.info(">>>>>> result : {}", result);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
+	}
 	
 	
 	@ApiOperation(value = "계정 관리 비밀번호 수정"
