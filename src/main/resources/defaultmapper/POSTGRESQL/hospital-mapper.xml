@@ -241,46 +241,24 @@
 		UPDATE t_hospital_clinic_mapp
 		   SET hospital_id = #{hospital_id}
 			 , day_of_week = #{day_of_week}
-	<choose>
-		<when test='"Y".equals(clinic_yn)'>
-			<if test='clinic_yn != null and !"".equals(clinic_yn)'>
-				 , clinic_yn = #{clinic_yn}
-			</if>
-			<if test='c_strt_tm != null and !"".equals(c_strt_tm)'>
-				 , c_strt_tm = #{c_strt_tm}
-			</if>
-			<if test='c_end_tm != null and !"".equals(c_end_tm)'>
-				 , c_end_tm = #{c_end_tm}
-			</if>
-		</when>
-		<when test='"N".equals(clinic_yn)'>
-			<if test='clinic_yn != null and !"".equals(clinic_yn)'>
+		<if test='clinic_yn != null and !"".equals(clinic_yn)'>
 			 , clinic_yn = #{clinic_yn}
-			</if>
-				 , c_strt_tm = null
-				 , c_end_tm = null
-		</when>
-	</choose>	 
-	<choose>
-		<when test='"Y".equals(lunch_yn)'>
-			<if test='lunch_yn != null and !"".equals(lunch_yn)'>
-				 , lunch_yn = #{lunch_yn}
-			</if>
-			<if test='l_strt_tm != null and !"".equals(l_strt_tm)'>
-				 , l_strt_tm = #{l_strt_tm}
-			</if>
-			<if test='l_end_tm != null and !"".equals(l_end_tm)'>
-				 , l_end_tm = #{l_end_tm}
-			</if>
-		</when>
-		<when test='"N".equals(lunch_yn)'>
-			<if test='lunch_yn != null and !"".equals(lunch_yn)'>
-				 , lunch_yn = #{lunch_yn}
-			</if>
-				 , l_strt_tm = #{l_strt_tm}
-				 , l_end_tm = #{l_end_tm}
-		</when>
-	</choose>
+		</if>
+		<if test='c_strt_tm != null and !"".equals(c_strt_tm)'>
+			 , c_strt_tm = #{c_strt_tm}
+		</if>
+		<if test='c_end_tm != null and !"".equals(c_end_tm)'>
+			 , c_end_tm = #{c_end_tm}
+		</if>
+		<if test='lunch_yn != null and !"".equals(lunch_yn)'>
+			 , lunch_yn = #{lunch_yn}
+		</if>
+		<if test='l_strt_tm != null and !"".equals(l_strt_tm)'>
+			 , l_strt_tm = #{l_strt_tm}
+		</if>
+		<if test='l_end_tm != null and !"".equals(l_end_tm)'>
+			 , l_end_tm = #{l_end_tm}
+		</if>
 		 WHERE 1=1
 		   AND hospital_id = #{hospital_id}
 		   AND day_of_week = #{day_of_week}
