@@ -58,8 +58,4 @@
 	</update>
 	
 	
-	<select id="" parameterType="accountInfoVO">
-		SELECT 
-	</select>
-	
 </mapper>

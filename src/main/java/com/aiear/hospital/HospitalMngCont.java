@@ -2,7 +2,6 @@ package com.aiear.hospital;
 
 import io.swagger.annotations.ApiOperation;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.aiear.dao.CommonDAO;
 import com.aiear.dao.HospitalMngDAO;
+import com.aiear.vo.CommonCdVO;
 import com.aiear.vo.HospitalInfoVO;
 import com.aiear.vo.ResponseVO;
 
@@ -133,6 +133,17 @@ public class HospitalMngCont {
 				cnt = hsptDAO.insertHospitalInfo(hsptInfoVO);
 				cnt = cnt > 0 ? hsptDAO.insertHospitalHst(hsptInfoVO) : cnt; 
 				
+				CommonCdVO cdVO = new CommonCdVO();
+				cdVO.setCat_cd("DOW");
+				List<CommonCdVO> dowList = commonDAO.getCommonCodeList(cdVO);
+				
+				for(CommonCdVO vo : dowList){
+					HospitalInfoVO hsptVO = new HospitalInfoVO(); 
+					hsptVO.setDay_of_week(vo.getCd().toString());
+					hsptVO.setHospital_id(hsptInfoVO.getHospital_id());
+					hsptDAO.insertHospitalClinic(hsptVO);
+				}
+					
 				rslt.put("cnt", cnt);
 				rslt.put("msg", "SUCCESS");
 			}
@@ -404,7 +415,7 @@ public class HospitalMngCont {
 			}
 			
 			byte[] b_img_file;
-			if(img_file != null || "".equals(img_file)) {
+			if(img_file != null || !"".equals(img_file)) {
 				b_img_file = img_file.getBytes();
 				hsptInfoVO.setImg_file_byte(b_img_file);
 			}

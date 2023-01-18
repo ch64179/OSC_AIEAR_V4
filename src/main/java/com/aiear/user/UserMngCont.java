@@ -247,7 +247,7 @@ public class UserMngCont {
 			}
 			
 			byte[] b_img_file;
-			if(img_file != null || "".equals(img_file)) {
+			if(img_file != null || !"".equals(img_file)) {
 				b_img_file = img_file.getBytes();
 				userInfoVO.setImg_file_byte(b_img_file);
 			}

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace 명은 dao 와 일치하게 작성하면 됨 -->
+<mapper namespace="com.aiear.dao.AnalysisDAO">
+
+	<!-- 통계 Grid 데이터 조회 -->
+	<select id="getGridList" parameterType="analysisVO" resultType="hMap">
+		WITH dList AS (SELECT DATE_PART('MONTH', a1.gen_dt) AS xaxis_m
+							, user_type
+							, COUNT(*) AS cnt
+						FROM t_inference_info a1
+				  INNER JOIN (SELECT user_id
+								   , 'USER' AS user_type
+								FROM t_user_info
+							   UNION ALL
+							  SELECT hospital_id AS user_id
+								   , 'HOSPITAL' AS user_type
+								FROM t_hospital_info) a2
+						  ON a1.user_id = a2.user_id
+					   WHERE 1=1
+					     AND DATE_PART('YEAR', a1.gen_dt)::varchar = #{search_year}
+					GROUP BY xaxis_m
+						   , user_type)
+		<if test='"USER".equals(user_type)'>
+		SELECT t1.user_type
+			 , t1.xaxis_m
+			 , COALESCE(t2.cnt, 0) AS cnt
+		  FROM (SELECT generate_series AS xaxis_m
+		  			 , 'USER' AS user_type
+				  FROM generate_series(1,12)) t1
+	LEFT OUTER JOIN dList t2
+			ON t1.xaxis_m = t2.xaxis_m
+		   AND t2.user_type = t1.user_type
+		</if>
+		<if test='"HOSPITAL".equals(user_type)'>
+		SELECT t1.user_type
+			 , t1.xaxis_m
+			 , COALESCE(t2.cnt, 0) AS cnt
+		  FROM (SELECT generate_series AS xaxis_m
+		  			 , 'HOSPITAL' AS user_type
+				  FROM generate_series(1,12)) t1
+	LEFT OUTER JOIN dList t2
+			ON t1.xaxis_m = t2.xaxis_m
+		   AND t2.user_type = t1.user_type
+		</if>
+	</select>
+	
+</mapper>

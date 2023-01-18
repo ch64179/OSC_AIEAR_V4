@@ -23,6 +23,9 @@
 		<!-- 계정관리 VO -->
 		<typeAlias alias="accountInfoVO" type="com.aiear.vo.AccountInfoVO" />
 		
+		<!-- 통계 VO -->
+		<typeAlias alias="analysisVO" type="com.aiear.vo.AnalysisVO" />
+		
 		<!-- SMS VO -->
 		<typeAlias alias="smsVO" type="com.aiear.vo.SMSVO" />
 		
