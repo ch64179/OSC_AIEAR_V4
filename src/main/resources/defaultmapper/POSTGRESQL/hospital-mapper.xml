@@ -25,6 +25,12 @@
 			 , t1.new_yn
 			 , t3.cd_val AS new_yn_nm
 			 , t1.user_type
+			 , CASE WHEN t4.use_flag IS NULL THEN 'W'
+			 		ELSE t4.use_flag
+			 		END AS use_flag
+			 , CASE WHEN t4.use_flag IS NULL THEN '대기'
+			 		ELSE t5.cd_val
+			 		END AS use_flag_nm
 		  FROM t_hospital_info t1
 	INNER JOIN t_cm_cd t2
 			ON t1.use_yn = t2.cd
@@ -32,6 +38,22 @@
 	INNER JOIN t_cm_cd t3
 			ON t1.new_yn = t3.cd
 		   AND t3.cat_cd = 'HOSPITAL_NEW_YN'
+	LEFT OUTER JOIN (SELECT a1.hospital_id
+			 , CASE WHEN MAX(a1.use_flag2)::integer = 1 THEN 'Y'
+			 		ELSE 'N'
+			 		END AS use_flag
+		  FROM (SELECT hospital_id
+					 , CASE WHEN now() BETWEEN start_dt AND end_dt THEN '1'
+					 		ELSE '0'
+					 		END AS use_flag2
+				  FROM t_inicis_user_mapp
+				 GROUP BY hospital_id
+				 		, use_flag2) a1
+		 GROUP BY a1.hospital_id) t4
+			ON t1.hospital_id = t4.hospital_id
+	LEFT OUTER JOIN t_cm_cd t5
+			ON t4.use_flag = t5.cd
+		   AND t5.cat_cd = 'HOSPITAL_REC_YN'
 		 WHERE 1=1
 		<if test='hospital_nm != null and !"".equals(hospital_nm)'>
 		   AND (t1.hospital_nm ILIKE CONCAT('%', #{hospital_nm}, '%')
@@ -304,5 +326,50 @@
 		WHERE 1=1
 		  AND hospital_id = #{hospital_id}
 	</update>
+	
+	
+	<select id="getHospitalPayInfoList" parameterType="hospitalInfoVO" resultType="hmap">
+		SELECT t1.hospital_id
+			 , t1.use_flag
+			 , t2.cd_val AS use_flag_nm
+			 , t3.goodsname
+			 , t3.goodname
+			 , t3.totprice
+			 , t3.currency
+			 , t1.start_dt
+			 , t1.end_dt
+		  FROM t_inicis_user_mapp t1
+	INNER JOIN t_cm_cd t2
+			ON t1.use_flag = t2.cd
+		   AND t2.cat_cd = 'PAY_USE_FLAG'
+	INNER JOIN t_inicis_pay_hst t3
+			ON t1.pay_seq = t3.seq
+		 WHERE 1=1
+		   AND hospital_id = #{hospital_id}
+	</select>
+	
+	
+	<select id="getHospitalInferList" parameterType="hospitalInfoVO" resultType="hmap">
+		SELECT t3.user_code
+			 , t3.user_nm
+			 , t3.user_gender
+			 , t4.cd_val AS user_gender_nm
+			 , t1.ear_pos
+			 , '고막 검사' AS infer_type
+			 , '' AS infer_result
+			 , t2.cd_val AS ear_pos_nm
+			 , t1.seq AS infer_seq
+			 , t1.gen_dt
+		  FROM t_inference_info t1
+	INNER JOIN t_cm_cd t2
+			ON t1.ear_pos = t2.cd
+		   AND t2.cat_cd = 'EAR_POS'
+	INNER JOIN t_user_info t3
+			ON t1.user_id = t3.user_id
+	INNER JOIN t_cm_cd t4
+			ON t3.user_gender = t4.cd
+		   AND t4.cat_cd = 'USER_GENDER'
+	</select>
+	
 	
 </mapper>

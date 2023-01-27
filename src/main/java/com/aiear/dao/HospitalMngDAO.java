@@ -113,4 +113,26 @@ public interface HospitalMngDAO {
 	 */
 	public int updateHospitalInfo(HospitalInfoVO vo);
 	
+	
+	/**
+	 * Description	: 
+	 * @method		: getHospitalPayInfoList
+	 * @author		: pcw
+	 * @date		: 2023. 1. 21.
+	 * @param vo
+	 * @return
+	 */
+	public List<Map<String, Object>> getHospitalPayInfoList(HospitalInfoVO vo);
+	
+	
+	/**
+	 * Description	: 
+	 * @method		: getHospitalInferList
+	 * @author		: pcw
+	 * @date		: 2023. 1. 21.
+	 * @param vo
+	 * @return
+	 */
+	public List<Map<String, Object>> getHospitalInferList(HospitalInfoVO vo);
+	
 }

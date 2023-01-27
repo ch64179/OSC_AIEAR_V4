@@ -15,6 +15,16 @@ public interface AnalysisDAO {
 
 	/**
 	 * Description	: 
+	 * @method		: getAnalysisYearList
+	 * @author		: pcw
+	 * @date		: 2023. 1. 18.
+	 * @param vo
+	 * @return
+	 */
+	public List<Map<String, Object>> getAnalysisYearList(AnalysisVO vo);
+	
+	/**
+	 * Description	: 
 	 * @method		: getGridList
 	 * @author		: pcw
 	 * @date		: 2023. 1. 18.

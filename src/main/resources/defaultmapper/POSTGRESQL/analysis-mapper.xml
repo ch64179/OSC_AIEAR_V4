@@ -4,6 +4,14 @@
 <!-- namespace 명은 dao 와 일치하게 작성하면 됨 -->
 <mapper namespace="com.aiear.dao.AnalysisDAO">
 
+	<select id="getAnalysisYearList" parameterType="analysisVO" resultType="hMap">
+		SELECT ROW_NUMBER() OVER (ORDER BY DATE_PART('YEAR', t1.gen_dt)::varchar) AS ROW
+			 , DATE_PART('YEAR', t1.gen_dt)::varchar AS year
+		  FROM t_inference_info t1
+		 GROUP BY DATE_PART('YEAR', t1.gen_dt)::varchar
+	</select>
+
+
 	<!-- 통계 Grid 데이터 조회 -->
 	<select id="getGridList" parameterType="analysisVO" resultType="hMap">
 		WITH dList AS (SELECT DATE_PART('MONTH', a1.gen_dt) AS xaxis_m

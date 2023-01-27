@@ -415,7 +415,7 @@ public class HospitalMngCont {
 			}
 			
 			byte[] b_img_file;
-			if(img_file != null || !"".equals(img_file)) {
+			if(img_file != null) {
 				b_img_file = img_file.getBytes();
 				hsptInfoVO.setImg_file_byte(b_img_file);
 			}
@@ -491,6 +491,68 @@ public class HospitalMngCont {
 		
 		return rsltVO;
 	}
+	
+	
+	@ApiOperation(value = "병원 결제 내역 리스트 조회"
+			, notes = "병원 결제 내역 리스트 조회")
+	@GetMapping(value = "getHospitalPayInfoList/{hospital_id}.do")
+	public @ResponseBody Map<String, Object> getHospitalPayInfoList(
+			HttpServletRequest req,
+			HttpServletResponse res,
+			@PathVariable String hospital_id,
+			HospitalInfoVO hsptInfoVO) {
+		
+		hsptInfoVO.setHospital_id(hospital_id);
+		
+		if(hsptInfoVO.getHospital_id() == null || "".equals(hsptInfoVO.getHospital_id())) {
+			res.setStatus(400);
+			return null;
+		}
+		
+		logger.info("■■■■■■ getHospitalPayInfoList / hsptInfoVO : {}", hsptInfoVO.beanToHmap(hsptInfoVO).toString());
+		List<Map<String, Object>> hsptList = hsptDAO.getHospitalPayInfoList(hsptInfoVO);
+		
+		Map<String, Object> list = new HashMap<String, Object>();
+		
+		list.put("data", hsptList);
+		list.put("size", hsptList.size());
+		
+		return list;
+	}
+	
+	
+	@ApiOperation(value = "병원 서비스 이용 리스트 조회"
+			, notes = "병원 서비스 이용 리스트 조회"
+					+ "<br> ** > 기획서 미완성으로 전체리스트만 간략하게 전달")
+	@GetMapping(value = "getHospitalInferList.do")
+	public @ResponseBody Map<String, Object> getHospitalInferList(
+			HttpServletRequest req,
+			HttpServletResponse res,
+//			@PathVariable String hospital_id,
+			HospitalInfoVO hsptInfoVO) {
+		
+//		hsptInfoVO.setHospital_id(hospital_id);
+//		
+//		if(hsptInfoVO.getHospital_id() == null || "".equals(hsptInfoVO.getHospital_id())) {
+//			res.setStatus(400);
+//			return null;
+//		}
+		
+		logger.info("■■■■■■ getHospitalInferList / hsptInfoVO : {}", hsptInfoVO.beanToHmap(hsptInfoVO).toString());
+		List<Map<String, Object>> hsptList = hsptDAO.getHospitalInferList(hsptInfoVO);
+		
+		Map<String, Object> list = new HashMap<String, Object>();
+		
+		list.put("data", hsptList);
+		list.put("size", hsptList.size());
+		
+		if(hsptList.size() == 0){
+			return null;
+		}
+		
+		return list;
+	}
+	
 	
 	
 }
