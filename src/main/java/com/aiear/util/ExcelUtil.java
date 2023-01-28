@@ -169,7 +169,7 @@ public static final int BUFF_SIZE = 2048;
 		headerStyle.setBorderTop(BorderStyle.THIN);
 		headerStyle.setBorderLeft(BorderStyle.THIN);
 		headerStyle.setBorderRight(BorderStyle.THIN);
-		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
+		headerStyle.setFillForegroundColor(IndexedColors.GREY_40_PERCENT.index);
 		headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 		headerStyle.setAlignment(HorizontalAlignment.CENTER);
 		headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -182,6 +182,16 @@ public static final int BUFF_SIZE = 2048;
 		dataStyle.setBorderRight(BorderStyle.THIN);
 		dataStyle.setAlignment(HorizontalAlignment.CENTER);
 		dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		
+		XSSFCellStyle dataStyle2 = workbook.createCellStyle();
+		dataStyle2.setBorderBottom(BorderStyle.THIN);
+		dataStyle2.setBorderTop(BorderStyle.THIN);
+		dataStyle2.setBorderLeft(BorderStyle.THIN);
+		dataStyle2.setBorderRight(BorderStyle.THIN);
+		dataStyle2.setAlignment(HorizontalAlignment.CENTER);
+		dataStyle2.setVerticalAlignment(VerticalAlignment.CENTER);
+		dataStyle2.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
+		dataStyle2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
 		//기본값 세팅
 		String[] titleArr=StringUtil.split(titleList, "|");
@@ -225,7 +235,25 @@ public static final int BUFF_SIZE = 2048;
 			for(int j=0; j<columnArr.length-1; j++){
 				cell = row.createCell((3*i)+(j+1));
 				cell.setCellValue(data.get(0).get(columnArr[j]).toString());
-				cell.setCellStyle(dataStyle);
+				XSSFCellStyle sty = j == 2 ? dataStyle2 : dataStyle;
+				cell.setCellStyle(sty);
+			}
+		}
+		
+		// ==========임시로 귀검진 데이터 활용
+		// (2, 1) ~ (2, 3x+1, 2,3(x+1))
+		row = sheet.createRow(3);
+		cell = row.createCell(0);
+		cell.setCellValue("청각 검사");
+		cell.setCellStyle(dataStyle);
+		
+		for(int i=0; i<dataList.size(); i++){
+			List<Map<String, Object>> data = (List<Map<String, Object>>) dataList.get(String.valueOf(i+1));
+			for(int j=0; j<columnArr.length-1; j++){
+				cell = row.createCell((3*i)+(j+1));
+				cell.setCellValue(data.get(0).get(columnArr[j]).toString());
+				XSSFCellStyle sty = j == 2 ? dataStyle2 : dataStyle;
+				cell.setCellStyle(sty);
 			}
 		}
 		

@@ -10,10 +10,12 @@
 			 , t1.user_nm
 			 , t1.user_pwd
 			 , t1.user_type
+			 , t1.user_salt
 		  FROM (SELECT user_id
 		  			 , user_nm
 					 , user_pwd
 					 , user_type
+					 , user_salt
 				  FROM t_user_info
 				 WHERE 1=1
 				   AND user_type = 'ADMIN'
@@ -22,6 +24,7 @@
 					 , hospital_nm AS user_nm
 					 , hospital_pwd AS user_pwd
 					 , user_type AS user_type
+					 , user_salt
 				  FROM t_hospital_info) AS t1
 		 WHERE 1=1
 		   AND t1.user_id = #{user_id}
@@ -90,6 +93,7 @@
 	<update id="updateHsptTempPwd" parameterType="userInfoVO">
 		UPDATE t_hospital_info
 		   SET hospital_pwd = #{temp_pwd}
+		   	 , user_salt = #{user_salt}
 		 WHERE mgr_tel_no = #{mobile_tel_no}
 		   AND hospital_id = #{user_id}
 	</update>
@@ -101,5 +105,12 @@
 		     , refresh_token = #{refresh_token}
 		 WHERE hospital_id = #{user_id}
 	</update>
+	
+	<select id="getUserSalt" parameterType="userInfoVO" resultType="userInfoVO">
+		SELECT user_salt
+		  FROM t_hospital_info
+		 WHERE 1=1
+		  AND hospital_id = #{user_id}
+	</select>
 
 </mapper>

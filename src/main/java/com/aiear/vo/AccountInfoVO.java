@@ -58,6 +58,7 @@ public class AccountInfoVO extends ResponseVO  {
 	@ApiParam(value = "페이지 선택")
 	private Integer page_cnt;
 	
+	private String user_salt;			// 비밀번호 암호화 SALT
 
 	public HashMap<String, Object> beanToHmap(AccountInfoVO vo) {
 		HashMap<String, Object> beanAsMap = new HashMap<String, Object>();

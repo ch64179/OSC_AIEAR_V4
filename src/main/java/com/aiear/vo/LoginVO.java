@@ -40,6 +40,8 @@ public class LoginVO {
 	@ApiParam(value = "Refresh Token")
 	private String refresh_token;
 	
+	private String user_salt;		//비밀번호 암호화 SALT 20자리
+	
 	public HashMap<String, Object> beanToHmap(LoginVO vo) {
 		HashMap<String, Object> beanAsMap = new HashMap<String, Object>();
 		

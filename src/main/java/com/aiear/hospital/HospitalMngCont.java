@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.aiear.dao.CommonDAO;
 import com.aiear.dao.HospitalMngDAO;
+import com.aiear.util.SHA512;
 import com.aiear.vo.CommonCdVO;
 import com.aiear.vo.HospitalInfoVO;
 import com.aiear.vo.ResponseVO;
@@ -122,6 +123,12 @@ public class HospitalMngCont {
 				res.setStatus(400);
 				return rsltVO;
 			}
+			
+			//TODO: 병원 등록 비밀번호 암호화처리
+			String userSalt = SHA512.getSalt();
+			String encPwd = SHA512.sha256(hsptInfoVO.getHospital_pwd(), userSalt);
+			hsptInfoVO.setHospital_pwd(encPwd);
+			hsptInfoVO.setUser_salt(userSalt);
 			
 			int dupCnt = hsptDAO.getHospitalDupChk(hsptInfoVO);
 			if(dupCnt > 0) {
@@ -418,6 +425,13 @@ public class HospitalMngCont {
 			if(img_file != null) {
 				b_img_file = img_file.getBytes();
 				hsptInfoVO.setImg_file_byte(b_img_file);
+			}
+			
+			if(hsptInfoVO.getHospital_pwd() != null){
+				String userSalt = SHA512.getSalt();
+				String encPwd = SHA512.sha256(hsptInfoVO.getHospital_pwd(), userSalt);
+				hsptInfoVO.setHospital_pwd(encPwd);
+				hsptInfoVO.setUser_salt(userSalt);
 			}
 			
 			cnt = hsptDAO.updateHospitalInfo(hsptInfoVO);

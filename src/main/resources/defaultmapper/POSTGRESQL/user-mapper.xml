@@ -156,6 +156,7 @@
 	<delete id="deleteUserAction" parameterType="userInfoVO">
 		UPDATE t_user_info 
 		   SET use_yn = 'N'
+		   	 , mdfy_dt = now()
 		 WHERE user_code = #{user_code}
 	</delete>
 	

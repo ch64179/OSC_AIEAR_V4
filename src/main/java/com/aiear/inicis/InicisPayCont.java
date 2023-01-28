@@ -129,7 +129,7 @@ public class InicisPayCont {
 		model.addAttribute("cardNoInterestQuota", cardNoInterestQuota);
 		model.addAttribute("siteDomain", siteDomain);
 			
-	    return "payInfo2";
+	    return "payInfo";
 	}
 	
 	

@@ -19,7 +19,7 @@ public class SMSUtil {
 	    // 4 params(to, from, type, text) are mandatory. must be filled
 	    HashMap<String, String> params = new HashMap<String, String>();
 	    params.put("to", smsVO.getTo_mobile_no());	// 수신전화번호
-	    params.put("from", smsVO.getFrom_mobile_no());	// 발신전화번호. 테스트시에는 발신,수신 둘다 본인 번호로 하면 됨
+	    params.put("from", smsVO.getFrom_mobile_no());	// 발신전화번호. 해당 계정 전화번호
 	    params.put("type", smsVO.getSend_type());
 	    params.put("text", smsVO.getSend_msg());
 	    params.put("app_version", smsVO.getApp_version()); // application name and version

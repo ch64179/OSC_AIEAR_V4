@@ -33,6 +33,7 @@ import com.aiear.dao.HospitalMngDAO;
 import com.aiear.dao.LoginDAO;
 import com.aiear.dao.SMSDAO;
 import com.aiear.util.LoginUtil;
+import com.aiear.util.SHA512;
 import com.aiear.util.SMSUtil;
 import com.aiear.vo.HospitalInfoVO;
 import com.aiear.vo.LoginVO;
@@ -131,6 +132,11 @@ public class LoginCont {
 			res.setStatus(400);
 			return resVO;
 		}
+		
+		//TODO: 로그인 비밀번호 암호화
+		String saltVO = idChk.get("user_salt").toString();
+		String encPwd = SHA512.sha256(loginVO.getUser_pwd(), saltVO);
+		loginVO.setUser_pwd(encPwd);
 		
 		Map<String, Object> pwdChk = loginDAO.normalLoginPwdProcess(loginVO);
 		
@@ -274,8 +280,8 @@ public class LoginCont {
 				String msg = "[AIEAR 계정 찾기] 귀하의 번호로 가입되어 있는 계정 : " + srchIdInfo.get("user_id").toString();
 	
 				SMSVO smsVO = new SMSVO();
-				smsVO.setTo_mobile_no(srchIdInfo.get("mobile_tel_no").toString());
 				smsVO.setSend_msg(msg);
+				smsVO.setTo_mobile_no(srchIdInfo.get("mobile_tel_no").toString());
 				smsVO.setFrom_mobile_no(COOL_SMS_MOBILE_NO);
 				smsVO.setApi_key(COOL_SMS_API_KEY);
 				smsVO.setApi_secret(COOL_SMS_API_SECRET);
@@ -350,9 +356,9 @@ public class LoginCont {
 				String msg = "[비밀번호 변경] 임시 비밀번호 생성 완료 : " + rndPwd;
 				
 				SMSVO smsVO = new SMSVO();
-				smsVO.setFrom_mobile_no(srchIdInfo.get("mobile_tel_no").toString());
 				smsVO.setSend_msg(msg);
-				smsVO.setTo_mobile_no(COOL_SMS_MOBILE_NO);
+				smsVO.setTo_mobile_no(srchIdInfo.get("mobile_tel_no").toString());
+				smsVO.setFrom_mobile_no(COOL_SMS_MOBILE_NO);
 				smsVO.setApi_key(COOL_SMS_API_KEY);
 				smsVO.setApi_secret(COOL_SMS_API_SECRET);
 				
@@ -362,7 +368,11 @@ public class LoginCont {
 				smsDAO.insertSMSSendHst(smsRsltVO);
 				
 				//	3. 임시 비밀번호로 업데이트
-				loginVO.setTemp_pwd(rndPwd);
+				//		+ 비밀번호 암호화 처리
+				String userSalt = SHA512.getSalt();
+				String encPwd = SHA512.sha256(rndPwd, userSalt);
+				loginVO.setTemp_pwd(encPwd);
+				loginVO.setUser_salt(userSalt);
 				Integer rslt = loginDAO.updateHsptTempPwd(loginVO);
 				
 				if(rslt > 0){

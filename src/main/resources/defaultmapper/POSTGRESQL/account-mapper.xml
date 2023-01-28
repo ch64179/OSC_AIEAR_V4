@@ -52,6 +52,9 @@
 		<if test='hospital_pwd != null and !"".equals(hospital_pwd)'> 
 			 , hospital_pwd = #{hospital_pwd}
 		</if>
+		<if test='user_salt != null and !"".equals(user_salt)'> 
+			 , user_salt = #{user_salt}
+		</if>
 			 , mdfy_by = 'admin'
 		WHERE 1=1
 		  AND hospital_id = #{hospital_id}

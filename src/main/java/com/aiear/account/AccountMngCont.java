@@ -36,6 +36,7 @@ import com.aiear.dao.HospitalMngDAO;
 import com.aiear.util.DateUtil;
 import com.aiear.util.ExcelUtil;
 import com.aiear.util.HttpUrlUtil;
+import com.aiear.util.SHA512;
 import com.aiear.vo.AccountInfoVO;
 import com.aiear.vo.HospitalInfoVO;
 import com.aiear.vo.ResponseVO;
@@ -158,6 +159,12 @@ public class AccountMngCont {
 				return rsltVO;
 			}
 			
+			if(accInfoVO.getHospital_pwd() != null){
+				String userSalt = SHA512.getSalt();
+				String encPwd = SHA512.sha256(accInfoVO.getHospital_pwd(), userSalt);
+				accInfoVO.setHospital_pwd(encPwd);
+				accInfoVO.setUser_salt(userSalt);
+			}
 			
 			cnt = accDAO.updateAccountInfo(accInfoVO);
 			

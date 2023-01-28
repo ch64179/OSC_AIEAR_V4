@@ -67,4 +67,13 @@ public interface LoginDAO {
 	public int updateLoginInfo(LoginVO vo);
 	
 	
+	/**
+	 * Description	: 
+	 * @method		: getUserSalt
+	 * @author		: pcw
+	 * @date		: 2023. 1. 28.
+	 * @param vo
+	 * @return
+	 */
+	public LoginVO getUserSalt(LoginVO vo);
 }

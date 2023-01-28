@@ -96,6 +96,8 @@ public class HospitalInfoVO extends ResponseVO  {
 	private String l_end_tm;
 	
 	
+	private String user_salt;			// 랜덤 20자리 SALT
+	
 	//이미지 삽임 전용
 	private byte[] img_file_byte;
 	

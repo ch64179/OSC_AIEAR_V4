@@ -110,8 +110,9 @@ public class AnalysisCont {
 		list.put("ear_data", mdList);
 		list.put("ear_size", mdList.size());
 		
-		list.put("es_data", null);
-		list.put("es_size", 0);
+		//임시로 귀건강 검사랑 동일한 데이터 전달
+		list.put("es_data", mdList);
+		list.put("es_size", mdList.size());
 		
 		return list;
 	}

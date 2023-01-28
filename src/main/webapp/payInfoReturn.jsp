@@ -58,7 +58,7 @@
                     </div>
                 </form>
 				
-				<button onclick="location.href='http://localhost:8080/inicis/payInfo/${resultMap.buyerName}.do'" class="btn_solid_pri col-6 mx-auto btn_lg" style="margin-top:50px">돌아가기</button>
+				<button onclick="location.href='http://103.22.220.93:8080/inicis/payInfo/${resultMap.buyerName}.do'" class="btn_solid_pri col-6 mx-auto btn_lg" style="margin-top:50px">돌아가기</button>
 					
                 </div>
             </section>

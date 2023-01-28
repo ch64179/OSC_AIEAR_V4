@@ -124,7 +124,8 @@
 			use_yn,
 			gen_by,
 			gen_dt,
-			new_yn
+			new_yn,
+			user_salt
 		) VALUES (
 			#{hospital_nm},
 			#{hospital_id},
@@ -132,7 +133,8 @@
 			'Y'::bpchar,
 			'admin',
 			now(),
-			'Y'::bpchar
+			'Y'::bpchar,
+			#{user_salt}
 		)
 	</insert>
 	
@@ -158,7 +160,8 @@
 			new_yn,
 			last_login,
 			refresh_token,
-			user_type)
+			user_type,
+			user_salt)
 		(SELECT hospital_nm,
 				hospital_id,
 				hospital_pwd,
@@ -177,7 +180,8 @@
 				new_yn,
 				last_login,
 				refresh_token,
-				user_type
+				user_type,
+				user_salt
 		   FROM t_hospital_info
 		  WHERE hospital_id = #{hospital_id})
 	</insert>
@@ -319,6 +323,9 @@
 		</if>
 		<if test='use_yn != null and !"".equals(use_yn)'>
 			 , use_yn = 'Y'::bpchar
+		</if>
+		<if test='user_salt != null and !"".equals(user_salt)'> 
+			 , user_salt = #{user_salt}
 		</if>
 			 , mdfy_by = 'admin'
 			 , mdfy_dt = now()
