@@ -134,5 +134,15 @@ public interface HospitalMngDAO {
 	 * @return
 	 */
 	public List<Map<String, Object>> getHospitalInferList(HospitalInfoVO vo);
+
+	
+	/**
+	 * Description	: 
+	 * @method		: getGoodsList
+	 * @author		: pcw
+	 * @date		: 2023. 1. 29.
+	 * @return
+	 */
+	public List<Map<String, Object>> getGoodsList();
 	
 }

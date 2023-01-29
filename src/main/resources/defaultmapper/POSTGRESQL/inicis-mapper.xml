@@ -116,13 +116,17 @@
 			pay_seq,
 			use_flag,
 			gen_by,
-			gen_dt
+			gen_dt,
+			goodstype,
+			price
 		) VALUES (
 			#{buyerName},
 			${paySeq},
 			'N',
 			#{buyerName},
-			NOW()
+			NOW(),
+			#{goodstype},
+			#{price}
 		)
 	</insert>
 	

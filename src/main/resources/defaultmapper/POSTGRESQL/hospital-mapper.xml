@@ -379,4 +379,15 @@
 	</select>
 	
 	
+	<select id="getGoodsList" parameterType="hospitalInfoVO" resultType="hmap">	
+		SELECT cd
+			 , cd_val
+			 , cd_desc
+			 , disp_ord
+			 , cd_attr_1
+		  FROM t_cm_cd
+		 WHERE 1=1
+		   AND cat_cd = 'HOSPITAL_GOODS'
+	</select>
+	
 </mapper>

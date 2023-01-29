@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+    <head>
+<!--         <meta charset="UTF-8"> -->
+<!--         <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
+<!--         <meta name="viewport" -->
+<!--             content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"> -->
+        <title>KG이니시스 결제샘플</title>
+		<!--테스트 JS-->
+		<script language="javascript" type="text/javascript" src="https://stgstdpay.inicis.com/stdjs/INIStdPay.js" charset="UTF-8"></script>
+    </head>
+
+    <body class="wrap">
+        <!-- 본문 -->
+        <main class="col-8 cont" id="bill-01">
+           <div class="card">
+               <form name="sendPayForm" id="sendPayForm" method="post">
+               	<input type="hidden" name="version" value="1.0" />
+               	<input type="hidden" name="goodname" th:value="${goodname}" />
+               	<input type="hidden" name="mid" th:value="${mid}" />
+               	<input type="hidden" name="oid" th:value="${oid}" />
+               	<input type="hidden" name="price" th:value="${price}" />
+               	<input type="hidden" name="currency" value="WON" />
+               	<input type="hidden" name="buyername" th:value="${buyername}" />
+               	<input type="hidden" name="buyertel" th:value="${buyertel}" />
+               	<input type="hidden" name="buyeremail" th:value="${buyeremail}" />
+               	<input type="hidden" name="timestamp" th:value="${timestamp}" />
+               	<input type="hidden" name="signature" th:value="${signature}" />
+               	<input type="hidden" name="returnUrl" th:value="${returnUrl}" />
+               	<input type="hidden" name="closeUrl" th:value="${closeUrl}" />
+               	<input type="hidden" name="mKey" th:value="${mKey}" />
+               	<input type="hidden" name="gopaymethod" value="Card:Directbank:vbank" />
+               	<input type="hidden" name="offerPeriod" value="" />
+               	<input type="hidden" name="acceptmethod" value="CARDPOINT:HPP(1):no_receipt:va_receipt:vbanknoreg(0):below1000" />
+               	<input type="hidden" name="languageView" value="" />
+               	<input type="hidden" name="charset" value="" />
+               	<input type="hidden" name="payViewType" value="" />
+               	<input type="hidden" name="quotabase" th:value="${cardQuotaBase}" />
+               	<input type="hidden" name="ini_onnlycardcode" value="" />
+               	<input type="hidden" name="ini_cardcode" value="" />
+               	<input type="hidden" name="ansim_quota" value="" />
+               	<input type="hidden" name="vbankRegNo" value="" />
+               	<input type="hidden" name="merchantData" id="merchantData" value="" />
+               </form>
+
+   			   <button id="btnPay" onclick="INIStdPay.pay('sendPayForm')" style="margin-top:50px; display: none;">결제 요청</button>
+           </div>
+        </main>
+    </body>
+    
+    <script>
+    	var frm = document.sendPayForm;
+    	frm.gopaymethod.value = "Card";
+		
+    	document.getElementById("btnPay").click();
+    </script>
+</html>

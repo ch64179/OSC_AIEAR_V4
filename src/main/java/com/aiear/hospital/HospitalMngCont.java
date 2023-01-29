@@ -507,6 +507,30 @@ public class HospitalMngCont {
 	}
 	
 	
+	
+	// =================================================================
+	// ======================== 결제관련(01/29) ========================
+	
+	
+	@ApiOperation(value = "병원 결제 상품 리스트"
+			, notes = "병원 결제 상품 리스트")
+	@GetMapping(value = "getGoodsList.do")
+	public @ResponseBody Map<String, Object> getGoodsList(
+			HttpServletRequest req,
+			HttpServletResponse res) {
+		
+		logger.info("■■■■■■ getGoodsList ");
+		List<Map<String, Object>> goodsList = hsptDAO.getGoodsList();
+		
+		Map<String, Object> list = new HashMap<String, Object>();
+		
+		list.put("data", goodsList);
+		list.put("size", goodsList.size());
+		
+		return list;
+	}
+	
+	
 	@ApiOperation(value = "병원 결제 내역 리스트 조회"
 			, notes = "병원 결제 내역 리스트 조회")
 	@GetMapping(value = "getHospitalPayInfoList/{hospital_id}.do")

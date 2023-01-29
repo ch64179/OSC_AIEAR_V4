@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.aiear.dao.HospitalMngDAO;
@@ -86,8 +88,34 @@ public class InicisPayCont {
 			ModelMap model,
 			HttpServletRequest request,
 			HttpServletResponse response,
-			@PathVariable String hospital_id)
+			@PathVariable String hospital_id,
+			@RequestParam(value = "goodsname", required = true) String goodsname,
+			@RequestParam(value = "sug_cnt", required = true) String sug_cnt,
+			@RequestParam(value = "ins_cnt", required = true) String ins_cnt)
 		throws Exception {
+		
+		//Total 결제 가격 정보(2023.01.29)
+		List<Map<String, Object>> goodsList = hsptDAO.getGoodsList();
+		Integer total = 0;
+		Integer sug_price = 0;
+		Integer ins_price = 0;
+		
+		for(Map<String, Object> good : goodsList){
+			String cd = good.get("cd").toString();
+			Integer gPrice = Integer.parseInt(good.get("cd_attr_1").toString());
+			switch (cd) {
+			case "SUG":
+				sug_price = gPrice;
+				total += gPrice * Integer.parseInt(sug_cnt);
+				break;
+			case "INS":
+				ins_price = gPrice;
+				total += gPrice * Integer.parseInt(ins_cnt);
+				break;
+			default:
+				break;
+			}
+		}
 		
 		String mid					= "INIpayTest";		                    // 상점아이디					
 		String signKey			    = "SU5JTElURV9UUklQTEVERVNfS0VZU1RS";	// 웹 결제 signkey
@@ -96,7 +124,7 @@ public class InicisPayCont {
 
 		String timestamp			= SignatureUtil.getTimestamp();			// util에 의해서 자동생성
 		String orderNumber			= mid+"_"+SignatureUtil.getTimestamp();	// 가맹점 주문번호(가맹점에서 직접 설정)
-		String price				= "1000";								// 상품가격(특수기호 제외, 가맹점에서 직접 설정)
+		String price				= String.valueOf(total);				// 상품가격(특수기호 제외, 가맹점에서 직접 설정)
 
 		String cardNoInterestQuota = "11-2:3:,34-5:12,14-6:12:24,12-12:36,06-9:12,01-3:4";
 		String cardQuotaBase = "2:3:4:5:6:11:12:24:36";
@@ -128,6 +156,16 @@ public class InicisPayCont {
 		model.addAttribute("cardQuotaBase", cardQuotaBase);
 		model.addAttribute("cardNoInterestQuota", cardNoInterestQuota);
 		model.addAttribute("siteDomain", siteDomain);
+		model.addAttribute("goodname", goodsname);
+		
+		//상품 개수 추가 (2023.01.29)
+		model.addAttribute("sugCnt", sug_cnt);
+		model.addAttribute("insCnt", ins_cnt);
+		model.addAttribute("sugIndPrice", sug_price);
+		model.addAttribute("insIndPrice", ins_price);
+		
+		model.addAttribute("returnUrl", "http://103.22.220.93:8080/inicis/payAfter.do?sugCnt=" + sug_cnt + "&insCnt=" + ins_cnt + "&sugIndPrice=" + sug_price + "&insIndPrice=" + ins_price + "&price=" + price);
+		model.addAttribute("closeUrl", "http://103.22.220.93:8080/inicis/close");
 			
 	    return "payInfo";
 	}
@@ -247,7 +285,7 @@ public class InicisPayCont {
 
 			// signature 데이터 생성 (모듈에서 자동으로 signParam을 알파벳 순으로 정렬후 NVP 방식으로 나열해 hash)
 			String signature = SignatureUtil.makeSignature(signParam);
-			String price = "1000";
+			String price = paramMap.get("price");
 
 			//#####################
 			// 3.API 요청 전문 생성
@@ -317,7 +355,26 @@ public class InicisPayCont {
 		
 		// 결제 성공시 계정별 결제 매핑테이블 적재
 		if("0000".equals(paramMap.get("resultCode"))){
-			inicisDAO.insertInicisUserPayMapp(resultMap);
+			int sugCnt = Integer.parseInt(paramMap.get("sugCnt"));
+			int insCnt = Integer.parseInt(paramMap.get("insCnt"));
+			
+			// 01) 추천병원 등록
+			for(int i=0; i<sugCnt; i++){
+				String price = paramMap.get("sugIndPrice");
+				resultMap.put("goodstype", "SUG");
+				resultMap.put("price", price);
+				inicisDAO.insertInicisUserPayMapp(resultMap);
+			}
+			
+			
+			// 02) 검사이용권 등록
+			for(int j=0; j<insCnt; j++){
+				String price = paramMap.get("insIndPrice");
+				resultMap.put("goodstype", "INS");
+				resultMap.put("price", price);
+				inicisDAO.insertInicisUserPayMapp(resultMap);
+			}
+			
 		}
 		
 		model.put("resultMap", resultMap);

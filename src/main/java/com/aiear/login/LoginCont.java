@@ -2,6 +2,7 @@ package com.aiear.login;
 
 import io.swagger.annotations.ApiOperation;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +20,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver;
@@ -181,44 +183,44 @@ public class LoginCont {
 	}
 	
 	
-	@ApiOperation(value = "토큰 발급"
-			, notes = "토큰 발급"
-					+ "\n 1. hospitalId"
-					+ "<br> 	- 필수값"
-					+ "\n 1. hospitalPwd"
-					+ "<br> 	- 필수값"
-			)
-	@PostMapping("/authenticate")
-	public String generateToken(@RequestBody AuthRequest authRequest) throws Exception {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.getHospitalId(), authRequest.getHospitalPwd())
-            );
-        } catch (Exception ex) {
-            throw new Exception("inavalid username/password");
-        }
-        return jwtUtil.generateToken(authRequest.getHospitalId(), authRequest.getHospitalPwd(), authRequest.getUserType());
-    }
-	
-	
-	@ApiOperation(value = "Refresh 토큰 발급"
-			, notes = "Refresh 토큰 발급"
-					+ "\n 1. hospitalId"
-					+ "<br> 	- 필수값"
-					+ "\n 1. hospitalPwd"
-					+ "<br> 	- 필수값"
-			)
-	@PostMapping("/authenticateR")
-	public String generateRefreshToken(@RequestBody AuthRequest authRequest) throws Exception {
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.getHospitalId(), authRequest.getHospitalPwd())
-            );
-        } catch (Exception ex) {
-            throw new Exception("inavalid username/password");
-        }
-        return jwtUtil.generateRefreshToken(authRequest.getHospitalId(), authRequest.getHospitalPwd(), authRequest.getUserType());
-    }
+//	@ApiOperation(value = "토큰 발급"
+//			, notes = "토큰 발급"
+//					+ "\n 1. hospitalId"
+//					+ "<br> 	- 필수값"
+//					+ "\n 1. hospitalPwd"
+//					+ "<br> 	- 필수값"
+//			)
+//	@PostMapping("/authenticate")
+//	public String generateToken(@RequestBody AuthRequest authRequest) throws Exception {
+//        try {
+//            authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(authRequest.getHospitalId(), authRequest.getHospitalPwd())
+//            );
+//        } catch (Exception ex) {
+//            throw new Exception("inavalid username/password");
+//        }
+//        return jwtUtil.generateToken(authRequest.getHospitalId(), authRequest.getHospitalPwd(), authRequest.getUserType());
+//    }
+//	
+//	
+//	@ApiOperation(value = "Refresh 토큰 발급"
+//			, notes = "Refresh 토큰 발급"
+//					+ "\n 1. hospitalId"
+//					+ "<br> 	- 필수값"
+//					+ "\n 1. hospitalPwd"
+//					+ "<br> 	- 필수값"
+//			)
+//	@PostMapping("/authenticateR")
+//	public String generateRefreshToken(@RequestBody AuthRequest authRequest) throws Exception {
+//        try {
+//            authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(authRequest.getHospitalId(), authRequest.getHospitalPwd())
+//            );
+//        } catch (Exception ex) {
+//            throw new Exception("inavalid username/password");
+//        }
+//        return jwtUtil.generateRefreshToken(authRequest.getHospitalId(), authRequest.getHospitalPwd(), authRequest.getUserType());
+//    }
 	
 	
 	@ApiOperation(value = "로그아웃"
@@ -237,6 +239,71 @@ public class LoginCont {
 		ResponseVO resVO = new ResponseVO();
 		
 		resVO.setResult(true);
+		
+		return resVO;
+	}
+	
+	
+	@ApiOperation(value = "토큰 재발급"
+			, notes = "Refresh Token으로 토큰 재발급"
+					+ "\n 1. user_id"
+					+ "<br> 	- 유저 ID"
+			)
+	@PostMapping(value = "reAuthenticate.do")
+	public @ResponseBody ResponseVO reAuthenticate(
+			HttpServletRequest req,
+			HttpServletResponse res,
+			@RequestParam(value = "user_id", required = true) String user_id,
+			@RequestParam(value = "refresh_token", required = true) String refresh_token
+		) {
+		
+		LoginVO loginVO = new LoginVO();
+		loginVO.setUser_id(user_id);
+		
+		logger.info("■■■■■■ normalLogin / loginVO : {}", loginVO.beanToHmap(loginVO).toString());
+		
+		ResponseVO resVO = new ResponseVO();
+		Map<String, Object> tokenMap = new HashMap<String, Object>();
+		
+		Map<String, Object> idChk = loginDAO.normalLoginIdProcess(loginVO);
+		if(refresh_token.equals(idChk.get("refresh_token"))) {
+			String authToken = null;
+			String refreshToken = null;
+			
+			try {
+				AuthRequest authRequest = new AuthRequest();
+				
+				authRequest.setHospitalId(loginVO.getUser_id());
+				authRequest.setHospitalPwd(idChk.get("user_pwd").toString());
+				authRequest.setUserType(idChk.get("user_type").toString());
+				
+				authToken = generateTokenStr(authRequest);
+				refreshToken = generateRefreshTokenStr(authRequest);
+				
+				tokenMap.put("accessToken", authToken);
+				tokenMap.put("refreshToken", refreshToken);
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				resVO.setStatus(400);
+				resVO.setMessage(idChk.get("user_type") + " 일치하는 계정이 없습니다, 토큰 생성에 실패했습니다.");
+				res.setStatus(400);
+			}
+			
+			loginVO.setRefresh_token(refreshToken);
+			loginDAO.updateLoginInfo(loginVO);
+			
+			resVO.setData(tokenMap);
+			resVO.setResult(true);
+		} else {
+			resVO.setResult(true);
+			resVO.setMessage(loginVO.getUser_id() + " / 일치하는 계정이 없습니다.");
+			resVO.setResult(false);
+			resVO.setStatus(400);
+			res.setStatus(400);
+			return resVO;
+		}
 		
 		return resVO;
 	}
