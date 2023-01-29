@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.view.RedirectView;
 
 import com.aiear.dao.HospitalMngDAO;
 import com.aiear.dao.InicisDAO;
@@ -81,6 +82,57 @@ public class InicisPayCont {
 		return "close";
 	}
 	
+	@GetMapping("/success")
+	public String success(ModelMap model
+			, HttpServletRequest request
+			, HttpServletResponse response) throws Exception {
+		
+		Map<String, String> resultMap = new HashMap<String, String>();
+
+		request.setCharacterEncoding("UTF-8");
+
+		Map<String,String> paramMap = new Hashtable<String,String>();
+
+		Enumeration elems = request.getParameterNames();
+
+		String temp = "";
+
+		while(elems.hasMoreElements())
+		{
+			temp = (String) elems.nextElement();
+			paramMap.put(temp, request.getParameter(temp));
+		}
+		
+		System.out.println("SUCCESS ParamMap : "+ paramMap.toString());
+		
+		return "payInfoReturn";
+	}
+	
+	@GetMapping("/fail")
+	public String fail(ModelMap model
+			, HttpServletRequest request
+			, HttpServletResponse response) throws Exception {
+		
+		Map<String, String> resultMap = new HashMap<String, String>();
+
+		request.setCharacterEncoding("UTF-8");
+
+		Map<String,String> paramMap = new Hashtable<String,String>();
+
+		Enumeration elems = request.getParameterNames();
+
+		String temp = "";
+
+		while(elems.hasMoreElements())
+		{
+			temp = (String) elems.nextElement();
+			paramMap.put(temp, request.getParameter(temp));
+		}
+		
+		System.out.println("FAIL ParamMap : "+ paramMap.toString());
+		
+		return "payFailReturn";
+	}
 	
 	
 	@GetMapping(value = "payInfo/{hospital_id}.do")
@@ -232,8 +284,12 @@ public class InicisPayCont {
 	
 	
 	@PostMapping(value = "payAfter.do")
-	public String payAfter(ModelMap model, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String retUrl = "payInfoReturn";
+	public RedirectView payAfter(ModelMap model, HttpServletRequest request, HttpServletResponse response) throws Exception {
+//		String successUrl = "payInfoReturn";
+//		String errorUrl = "payFailReturn";
+		String successUrl = "/inicis/success";
+		String errorUrl = "/inicis/fail";
+		String returnUrl = successUrl;
 		
 		Map<String, String> resultMap = new HashMap<String, String>();
 
@@ -342,11 +398,14 @@ public class InicisPayCont {
 
 				// 취소 결과 확인
 				System.out.println("<p>"+netcancelResultString.replaceAll("<", "&lt;").replaceAll(">", "&gt;")+"</p>");
+				
+				returnUrl = errorUrl;
 			}
 
 		}else{
 			resultMap.put("resultCode", paramMap.get("resultCode"));
 			resultMap.put("resultMsg", paramMap.get("resultMsg"));
+			returnUrl = errorUrl;
 		}
 		
 		// 결제요청 결과이력 적재
@@ -354,7 +413,7 @@ public class InicisPayCont {
 		resultMap.put("paySeq", String.valueOf(paySeq));
 		
 		// 결제 성공시 계정별 결제 매핑테이블 적재
-		if("0000".equals(paramMap.get("resultCode"))){
+		if("0000".equals(resultMap.get("resultCode"))){
 			int sugCnt = Integer.parseInt(paramMap.get("sugCnt"));
 			int insCnt = Integer.parseInt(paramMap.get("insCnt"));
 			
@@ -375,12 +434,13 @@ public class InicisPayCont {
 				inicisDAO.insertInicisUserPayMapp(resultMap);
 			}
 			
+		} else {
+			returnUrl = errorUrl;
 		}
 		
 		model.put("resultMap", resultMap);
 		
-		
-		return retUrl;
+		return new RedirectView(returnUrl);
 	}
 	
 	
