@@ -4,7 +4,15 @@
 <!-- namespace 명은 dao 와 일치하게 작성하면 됨 -->
 <mapper namespace="com.aiear.dao.InicisDAO">
 
-	
+	<select id="getInicisIndList" parameterType="map" resultType="map">
+		SELECT *
+		  FROM t_inicis_user_mapp t1
+	INNER JOIN t_inicis_pay_hst t2
+			ON t1.pay_seq = t2.seq
+		 WHERE 1=1
+		   AND t1.pay_seq = ${pay_seq}
+		   AND t1.seq = ${seq}
+	</select>
 
 	<select id="insertInicisPayHst" parameterType="map" resultType="Integer">
 		INSERT INTO t_inicis_pay_hst (
@@ -110,6 +118,50 @@
 	</select>
 
 
+	<select id="insertInicisRefundHst" parameterType="map" resultType="Integer">
+		INSERT INTO t_inicis_pay_refund_hst (
+			pay_seq,
+			resultcode,
+			resultmsg,
+			tid,
+			prtctid,
+			prtcremains,
+			prtcprice,
+			prtctype,
+			prtccnt,
+			prtcdate,
+			prtctime,
+			receiptinfo,
+			pointamount,
+			discountamount,
+			creditamount,
+			rsltcode,
+			gen_by,
+			gen_dt
+		) VALUES (
+			${pay_seq},
+			#{resultCode},
+			#{resultMsg},
+			#{tid},
+			#{prtcTid},
+			#{prtcRemains},
+			#{prtcPrice},
+			#{prtcType},
+			#{prtcCnt},
+			#{prtcDate},
+			#{prtcTime},
+			#{receiptInfo},
+			#{pointAmount},
+			#{discountAmount},
+			#{creditAmount},
+			#{rsltCode},
+			#{gen_by},
+			now()
+		)
+		RETURNING seq
+	</select>
+
+
 	<insert id="insertInicisUserPayMapp" parameterType="map">
 		INSERT INTO t_inicis_user_mapp (
 			hospital_id,
@@ -129,5 +181,26 @@
 			#{price}
 		)
 	</insert>
+	
+	
+	<update id="updateInicisPayHst" parameterType="map">
+		UPDATE t_inicis_pay_hst
+		   SET totprice = #{remainPrice}
+		 WHERE seq = ${pay_seq}
+	</update>
+	
+	
+	<update id="updateInicisUserPayMapp" parameterType="map">
+		UPDATE t_inicis_user_mapp
+		   SET use_flag = 'Y'
+		   	 , start_dt = null
+		   	 , end_dt = null
+		   	 , mdfy_by = #{gen_by}
+		   	 , mdfy_dt = now()
+		   	 , goodstype = 'REF'
+		   	 , price = '0'
+		 WHERE 1=1
+		   AND seq = ${seq}
+	</update>
 	
 </mapper>

@@ -93,7 +93,7 @@ public class JwtUtil {
 //                .compact();
     	
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 3))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
                 .signWith(SignatureAlgorithm.HS256, secret).compact();
     }
     
@@ -102,7 +102,7 @@ public class JwtUtil {
       return Jwts.builder()
               .setClaims(claims) // 정보 저장
               .setIssuedAt(new Date(System.currentTimeMillis())) // 토큰 발행 시간 정보
-              .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7)) // set Expire Time
+              .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 365)) // set Expire Time
               .signWith(SignatureAlgorithm.HS256, secret)  // 사용할 암호화 알고리즘과
               // signature 에 들어갈 secret값 세팅
               .compact();

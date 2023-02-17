@@ -79,6 +79,8 @@ public class HttpUrlUtil {
 				builder.append(str + "\n");
 			}
 			result = builder.toString();
+			
+			http.disconnect();
 
 		} catch (MalformedURLException e) {
 
@@ -386,6 +388,8 @@ public class HttpUrlUtil {
 				builder.append(str + "\n");
 			}
 			result = builder.toString();
+			
+			http.disconnect();
 
 		} catch (MalformedURLException e) {
 
@@ -442,7 +446,9 @@ public class HttpUrlUtil {
 			rsltMap.put("rsltCode", rsltCode);
 			
 			System.out.println("■■■■■■ HTTP RESULT CODE : " + rsltCode);
-
+			
+			http.disconnect();
+			
 		} catch (MalformedURLException e) {
 
 		} catch (IOException e) {

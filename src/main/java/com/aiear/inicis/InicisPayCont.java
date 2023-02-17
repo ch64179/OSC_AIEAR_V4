@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.view.RedirectView;
+import org.supercsv.cellprocessor.ParseInt;
 
 import com.aiear.dao.HospitalMngDAO;
 import com.aiear.dao.InicisDAO;
@@ -458,18 +459,29 @@ public class InicisPayCont {
 		String result = "";
 		Map<String, Object> rsltMap = new HashMap<String, Object>();
 		
+		Map<String,String> paramMap = new Hashtable<String,String>();
+		
+		paramMap.put("seq", model.get("seq").toString());
+		paramMap.put("pay_seq", model.get("pay_seq").toString());
+		
+		Map<String, Object> indInfo = inicisDAO.getInicisIndList(paramMap);
+		
+		System.out.println("SUCCESS indInfo : "+ indInfo.toString());
+		
+		int intConfimrPrice = Integer.parseInt(indInfo.get("totprice").toString()) - Integer.parseInt(indInfo.get("price").toString());
+		
 		//step1. 요청을 위한 파라미터 설정
 		String key = "ItEQKi3rY7uvDS8l"; 
 		String iv = "HYb3yQ4f65QL89==";
 		String type = "PartialRefund";
-		String paymethod = "Card";
+		String paymethod = indInfo.get("paymethod").toString();
 		String timestamp = fourteen_format.format(date_now);
 		String clientIp = "111.222.333.889";
-		String mid = "INIpayTest";
-		String tid = model.get("tid").toString(); 			
-		String msg = "추천병원 가상계좌 부분환불요청";
-		String price = model.get("price").toString();												
-		String confirmPrice = "0";									
+		String mid = indInfo.get("mid").toString();
+		String tid = indInfo.get("tid").toString(); 			
+		String msg = indInfo.get("goodname").toString();
+		String price = indInfo.get("price").toString();												
+		String confirmPrice = String.valueOf(intConfimrPrice);									
 		String refundBankCode = "";
 		String refundAcctName = "";
 		String refundAcctNum = "";
@@ -550,6 +562,25 @@ public class InicisPayCont {
 					
 					int rsltCode = conn.getResponseCode();
 					rsltMap.put("rsltCode", rsltCode);
+					
+					
+					//환불 SUCCESS CASE
+					if("00".equals(rsltMap.get("resultCode"))){
+						rsltMap.put("seq", model.get("seq").toString());
+						rsltMap.put("pay_seq", model.get("pay_seq").toString());
+						rsltMap.put("gen_by", "admin");
+						
+						int ref_seq = inicisDAO.insertInicisRefundHst(rsltMap);
+						
+						//업데이트
+						String remainPrice = rsltMap.get("prtcRemains").toString();
+						
+						rsltMap.put("remainPrice", remainPrice);
+						
+						int upCnt = inicisDAO.updateInicisPayHst(rsltMap);
+						int upCnt2 = inicisDAO.updateInicisUserPayMapp(rsltMap);
+					}
+					
 				}
 
 		}catch(Exception e ) {

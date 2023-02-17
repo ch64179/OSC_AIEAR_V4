@@ -337,6 +337,8 @@
 	
 	<select id="getHospitalPayInfoList" parameterType="hospitalInfoVO" resultType="hmap">
 		SELECT t1.hospital_id
+			 , t1.seq
+			 , t1.pay_seq
 			 , t1.use_flag
 			 , t2.cd_val AS use_flag_nm
 			 , t3.goodsname
@@ -345,12 +347,18 @@
 			 , t3.currency
 			 , t1.start_dt
 			 , t1.end_dt
+			 , t1.goodstype
+			 , t4.cd_val AS goodstype_nm
+			 , t1.price
 		  FROM t_inicis_user_mapp t1
 	INNER JOIN t_cm_cd t2
 			ON t1.use_flag = t2.cd
 		   AND t2.cat_cd = 'PAY_USE_FLAG'
 	INNER JOIN t_inicis_pay_hst t3
 			ON t1.pay_seq = t3.seq
+	INNER JOIN t_cm_cd t4
+			ON t1.goodstype = t4.cd
+		   AND t4.cat_cd = 'HOSPITAL_GOODS'
 		 WHERE 1=1
 		   AND hospital_id = #{hospital_id}
 	</select>
@@ -388,6 +396,7 @@
 		  FROM t_cm_cd
 		 WHERE 1=1
 		   AND cat_cd = 'HOSPITAL_GOODS'
+		   AND cd_attr_2 = 'Y'
 	</select>
 	
 </mapper>

@@ -2,11 +2,10 @@
 <html lang="ko">
 
     <head>
-<!--         <meta charset="UTF-8"> -->
-<!--         <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
-<!--         <meta name="viewport" -->
-<!--             content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"> -->
-        <title>KG이니시스 결제샘플</title>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <title>KG이니시스 결제실패</title>
         <link rel="stylesheet" href="css/style.css" />
 		<link rel="stylesheet" href="css/bootstrap.min.css" />
 		
@@ -30,4 +29,17 @@
         </main>
 		
     </body>
+    
+    <script>
+    const opener = window.opener;
+
+    if(opener){
+		const payload = {
+			message : "paymentResult",
+			isSuccess : true
+		}
+		opener.postMessage(payload, "http://103.22.220.93:8080");
+		window.close();
+	}
+	</script>
 </html>
