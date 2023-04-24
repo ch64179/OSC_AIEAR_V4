@@ -24,7 +24,7 @@ public class SwaggerConfig {
 
     private static final String API_NAME = "AIEAR API";
     private static final String API_VERSION = "0.1.0";
-    private static final String API_DESCRIPTION = "AIEAR API 정의서";
+    private static final String API_DESCRIPTION = "관리자 AIEAR API 정의서";
 
     @Bean
     public Docket api() {

@@ -60,6 +60,9 @@ public class UserInfoVO extends ResponseVO {
 	@ApiParam(value = "유저 가족관계")
 	private String family_relation;
 	
+	@ApiParam(value = "아이콘 타입")
+	private String icon_type;
+	
 	
 	//이미지 삽임 전용
 	private byte[] img_file_byte;

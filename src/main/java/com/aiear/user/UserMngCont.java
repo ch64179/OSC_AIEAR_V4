@@ -149,7 +149,6 @@ public class UserMngCont {
 		logger.info("■■■■■■ getUserRelationList / userInfoVO : {}", userInfoVO.beanToHmap(userInfoVO).toString());
 		
 		List<Map<String, Object>> userList = userDAO.getUserRelationList(userInfoVO);
-		
 		Map<String, Object> list = new HashMap<String, Object>();
 		
 		list.put("data", userList);
@@ -217,8 +216,10 @@ public class UserMngCont {
 						+ "<br> 	- (선택)"
 						+ "\n 2. user_nm"
 						+ "<br>		- (선택)"
-						+ "\n 3. img_file"
-						+ "<br>		- 이미지 파일(multipart)"
+//						+ "\n 3. img_file"
+//						+ "<br>		- 이미지 파일(multipart)"
+						+ "\n 3. icon_type"
+						+ "<br>		- (선택)아이콘 타입"
 						+ "\n 4. user_addr"
 						+ "<br>		- (선택)유저 주소")
 	@PostMapping(value = "updateUserDetail/{user_code}.do")

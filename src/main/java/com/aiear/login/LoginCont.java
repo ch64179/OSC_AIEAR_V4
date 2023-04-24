@@ -248,25 +248,38 @@ public class LoginCont {
 			, notes = "Refresh Token으로 토큰 재발급"
 					+ "\n 1. user_id"
 					+ "<br> 	- 유저 ID"
+					+ "\n 2. refresh_token"
+					+ "<br> 	- Refresh Token값"
 			)
 	@PostMapping(value = "reAuthenticate.do")
 	public @ResponseBody ResponseVO reAuthenticate(
 			HttpServletRequest req,
 			HttpServletResponse res,
-			@RequestParam(value = "user_id", required = true) String user_id,
-			@RequestParam(value = "refresh_token", required = true) String refresh_token
+			@RequestBody LoginVO loginVO
+//			@RequestParam(value = "user_id", required = true) String user_id,
+//			@RequestParam(value = "refresh_token", required = true) String refresh_token
 		) {
 		
-		LoginVO loginVO = new LoginVO();
-		loginVO.setUser_id(user_id);
+//		LoginVO loginVO = new LoginVO();
+//		loginVO.setUser_id(user_id);
 		
-		logger.info("■■■■■■ normalLogin / loginVO : {}", loginVO.beanToHmap(loginVO).toString());
+		logger.info("■■■■■■ reAuthenticate / loginVO : {}", loginVO.beanToHmap(loginVO).toString());
 		
 		ResponseVO resVO = new ResponseVO();
 		Map<String, Object> tokenMap = new HashMap<String, Object>();
 		
 		Map<String, Object> idChk = loginDAO.normalLoginIdProcess(loginVO);
-		if(refresh_token.equals(idChk.get("refresh_token"))) {
+		
+		if(idChk == null){
+			resVO.setResult(true);
+			resVO.setMessage(loginVO.getUser_id() + " / 일치하는 계정 또는 토큰정보가 없습니다.");
+			resVO.setResult(false);
+			resVO.setStatus(400);
+			res.setStatus(400);
+			return resVO;
+		}
+		
+		if(loginVO.getRefresh_token().equals(idChk.get("refresh_token"))) {
 			String authToken = null;
 			String refreshToken = null;
 			
@@ -298,13 +311,15 @@ public class LoginCont {
 			resVO.setResult(true);
 		} else {
 			resVO.setResult(true);
-			resVO.setMessage(loginVO.getUser_id() + " / 일치하는 계정이 없습니다.");
+			resVO.setMessage(loginVO.getUser_id() + " / 일치하는 계정 또는 토큰정보가 없습니다.");
 			resVO.setResult(false);
 			resVO.setStatus(400);
 			res.setStatus(400);
 			return resVO;
 		}
 		
+		//Refresh Token 403 Error 추후에 수정
+		res.setStatus(200);
 		return resVO;
 	}
 	
@@ -450,7 +465,6 @@ public class LoginCont {
 					resVO.setData(srchIdInfo);
 					resVO.setMessage("임시 비밀번호 발급 성공");
 					resVO.setResult(true);
-					res.setStatus(400);
 				} else {
 					resVO.setMessage("임시 비밀번호 저장 실패");
 					resVO.setResult(false);
